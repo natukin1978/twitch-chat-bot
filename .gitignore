@@ -169,3 +169,10 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Not managed as it is important information
+/config.json
+/exclude_id.txt
+/messages/web_scraping_message.txt
+/prompts/additional_requests_prompt.txt
+/prompts/web_scraping_prompt.txt

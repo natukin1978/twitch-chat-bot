@@ -1,0 +1,29 @@
+{
+  "twitch": {
+    "loginChannel": "",
+    "accessToken": "oauth:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  },
+  "fuyukaApi": {
+    "baseUrl": "ws://127.0.0.1:8000",
+    "responseKeywords": [
+      "知って",
+      "教え",
+      "調べ",
+      "説明"
+    ],
+    "exclusionKeywords": [
+      "テスト",
+      "死",
+      "痛"
+    ]
+  },
+  "phantomJsCloud": {
+    "apiKey": ""
+  },
+  "neoInnerApi": {
+    "baseUrl": "ws://127.0.0.1:50000"
+  },
+  "oneComme": {
+    "pathUsersCsv": ""
+  }
+}
