@@ -102,7 +102,8 @@ class TwitchBot(commands.Bot):
                 OneCommeUsers.update_additional_requests(json_data, 120)
                 answerLevel = 100  # 常に回答してください
 
-        await Fuyuka.send_message_by_json_with_buf(json_data)
+        needs_response = is_hit_by_message_json(answerLevel, json_data)
+        await Fuyuka.send_message_by_json_with_buf(json_data, needs_response)
 
     @staticmethod
     def get_cmd_value(content: str) -> str:
@@ -121,4 +122,4 @@ class TwitchBot(commands.Bot):
         json_data = create_message_json(ctx.message)
         json_data["content"] = text
         OneCommeUsers.update_additional_requests(json_data, 70)
-        await Fuyuka.send_message_by_json_with_buf(json_data)
+        await Fuyuka.send_message_by_json_with_buf(json_data, True)

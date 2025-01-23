@@ -24,6 +24,7 @@ g.config = readConfig()
 g.map_is_first_on_stream = {}
 g.one_comme_users = OneCommeUsers.read_one_comme_users()
 g.set_exclude_id = set(readText("exclude_id.txt").splitlines())
+g.set_needs_response = set()
 g.talker_name = ""
 g.talk_buffers = ""
 g.websocket_fuyuka = None
@@ -62,6 +63,10 @@ async def main():
     async def recv_fuyuka_response(message: str) -> None:
         try:
             json_data = json.loads(message)
+            request_dateTime = json_data["request"]["dateTime"]
+            if request_dateTime not in g.set_needs_response:
+                return
+            g.set_needs_response.discard(request_dateTime)
             response_text = json_data["response"]
             if not response_text:
                 return
@@ -97,7 +102,7 @@ async def main():
                 if is_response:
                     # レスポンス有効時は追加の要望を無効化
                     del json_data["additionalRequests"]
-                await Fuyuka.send_message_by_json_with_buf(json_data)
+                await Fuyuka.send_message_by_json_with_buf(json_data, True)
             else:
                 if talk_buffers_len > 0:
                     g.talk_buffers += " "

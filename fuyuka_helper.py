@@ -15,7 +15,7 @@ class Fuyuka:
         await g.websocket_fuyuka.send(json_str)
 
     @staticmethod
-    async def send_message_by_json_with_buf(json_data: dict[str, any]) -> None:
+    async def send_message_by_json_with_buf(json_data: dict[str, any], needs_response: bool) -> None:
         if len(g.talk_buffers) > 0:
             # 溜まってたバッファ分を送ってクリアする
             json_data_buffer = create_message_json()
@@ -26,4 +26,6 @@ class Fuyuka:
             g.talk_buffers = ""
             await Fuyuka.send_message_by_json(json_data_buffer)
         # 本命
+        if needs_response:
+            g.set_needs_response.add(json_data["dateTime"])
         await Fuyuka.send_message_by_json(json_data)
