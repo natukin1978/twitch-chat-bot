@@ -1,0 +1,4 @@
+aiohttp
+twitchio
+beautifulsoup4
+websockets
