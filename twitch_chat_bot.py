@@ -143,7 +143,7 @@ async def main():
 
     print("前回の続きですか？(y/n)")
     is_continue = input() == "y"
-    if is_continue and load_is_first_on_stream():
+    if is_continue and OneCommeUsers.load_is_first_on_stream():
         print("挨拶キャッシュを復元しました。")
 
     client = twitchio.Client(
