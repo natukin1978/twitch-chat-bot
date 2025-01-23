@@ -8,7 +8,7 @@ from twitchio.ext import commands
 
 import global_value as g
 from emote_helper import add_emotes, remove_emote
-from fuyuka_helper import send_message_by_json_with_buf
+from fuyuka_helper import Fuyuka
 from one_comme_users import OneCommeUsers
 from random_helper import is_hit_by_message_json
 from twitch_message_helper import create_message_json
@@ -102,7 +102,7 @@ class TwitchBot(commands.Bot):
                 OneCommeUsers.update_additional_requests(json_data, 120)
                 answerLevel = 100  # 常に回答してください
 
-        await send_message_by_json_with_buf(json_data)
+        await Fuyuka.send_message_by_json_with_buf(json_data)
 
     @staticmethod
     def get_cmd_value(content: str) -> str:
@@ -121,4 +121,4 @@ class TwitchBot(commands.Bot):
         json_data = create_message_json(ctx.message)
         json_data["content"] = text
         OneCommeUsers.update_additional_requests(json_data, 70)
-        await send_message_by_json_with_buf(json_data)
+        await Fuyuka.send_message_by_json_with_buf(json_data)

@@ -8,7 +8,7 @@ import websockets
 
 import global_value as g
 from config_helper import readConfig
-from fuyuka_helper import send_message_by_json_with_buf
+from fuyuka_helper import Fuyuka
 from one_comme_users import OneCommeUsers
 from random_helper import is_hit
 from text_helper import readText
@@ -97,7 +97,7 @@ async def main():
                 if is_response:
                     # レスポンス有効時は追加の要望を無効化
                     del json_data["additionalRequests"]
-                await send_message_by_json_with_buf(json_data)
+                await Fuyuka.send_message_by_json_with_buf(json_data)
             else:
                 if talk_buffers_len > 0:
                     g.talk_buffers += " "
