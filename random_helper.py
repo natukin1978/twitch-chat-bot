@@ -1,6 +1,9 @@
+import logging
 import random
 from random import randint
 from typing import Any, Dict
+
+logger = logging.getLogger(__name__)
 
 
 def is_hit(percent: int) -> bool:
@@ -9,10 +12,10 @@ def is_hit(percent: int) -> bool:
     random_value = randint(0, 100)
     result = percent >= random_value
     if result:
-        print("hit!")
+        logger.info("hit!")
     else:
-        print("skip.")
-    print(f"{percent}% の確率で、{random_value}% の位置でした。")
+        logger.info("skip.")
+    logger.info(f"{percent}% の確率で、{random_value}% の位置でした。")
     return result
 
 

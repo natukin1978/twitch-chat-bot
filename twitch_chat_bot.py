@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 
 import twitchio
 
@@ -18,6 +19,9 @@ g.ADDITIONAL_REQUESTS_PROMPT = readText("prompts/additional_requests_prompt.txt"
 g.WEB_SCRAPING_MESSAGE = readText("messages/web_scraping_message.txt")
 
 g.config = readConfig()
+
+# ロガーの設定
+logging.basicConfig(level=logging.INFO)
 
 g.map_is_first_on_stream = {}
 g.one_comme_users = OneCommeUsers.read_one_comme_users()

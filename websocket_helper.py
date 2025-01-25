@@ -1,8 +1,11 @@
 import asyncio
+import logging
 import sys
 from typing import Awaitable, Callable
 
 import websockets
+
+logger = logging.getLogger(__name__)
 
 HandleMessage = Callable[[str], Awaitable[None]]
 HandleSetWebsocket = Callable[[websockets.ClientConnection], None]
@@ -41,7 +44,7 @@ async def websocket_listen_forever(
                             await asyncio.sleep(sleep_time)
                             break
         except Exception as e:
-            print(e, file=sys.stderr)
+            logger.error(e)
             await asyncio.sleep(sleep_time)
             continue
         finally:

@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 
 import aiohttp
@@ -12,6 +13,8 @@ from fuyuka_helper import Fuyuka
 from one_comme_users import OneCommeUsers
 from random_helper import is_hit_by_message_json
 from twitch_message_helper import create_message_json
+
+logger = logging.getLogger(__name__)
 
 
 class TwitchBot(commands.Bot):
@@ -110,7 +113,7 @@ class TwitchBot(commands.Bot):
         pattern = r"^![^ ]+ (.*?)$"
         match = re.search(pattern, content)
         if not match:
-            print("Not match")
+            logger.debug("Not match: " + content)
             return ""
 
         return match.group(1)
