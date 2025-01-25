@@ -1,10 +1,7 @@
 import asyncio
 import json
-import socket
-import sys
 
 import twitchio
-import websockets
 
 import global_value as g
 from config_helper import readConfig
@@ -14,6 +11,7 @@ from random_helper import is_hit
 from text_helper import readText
 from twitch_bot import TwitchBot
 from twitch_message_helper import create_message_json
+from websocket_helper import websocket_listen_forever
 
 g.WEB_SCRAPING_PROMPT = readText("prompts/web_scraping_prompt.txt")
 g.ADDITIONAL_REQUESTS_PROMPT = readText("prompts/additional_requests_prompt.txt")
@@ -107,44 +105,6 @@ async def main():
                 if talk_buffers_len > 0:
                     g.talk_buffers += " "
                 g.talk_buffers += message
-
-    async def websocket_listen_forever(
-        websocket_uri: str, handle_message, handle_set_ws=None
-    ) -> None:
-        reply_timeout = 60
-        ping_timeout = 15
-        sleep_time = 5
-        while True:
-            # outer loop restarted every time the connection fails
-            try:
-                async with websockets.connect(websocket_uri) as ws:
-                    if handle_set_ws:
-                        handle_set_ws(ws)
-                    while True:
-                        # listener loop
-                        try:
-                            message = await asyncio.wait_for(
-                                ws.recv(), timeout=reply_timeout
-                            )
-                            await handle_message(message)
-                        except (
-                            asyncio.TimeoutError,
-                            websockets.exceptions.ConnectionClosed,
-                        ):
-                            try:
-                                pong = await ws.ping()
-                                await asyncio.wait_for(pong, timeout=ping_timeout)
-                                continue
-                            except:
-                                await asyncio.sleep(sleep_time)
-                                break
-            except Exception as e:
-                print(e, file=sys.stderr)
-                await asyncio.sleep(sleep_time)
-                continue
-            finally:
-                if handle_set_ws:
-                    handle_set_ws(None)
 
     print("前回の続きですか？(y/n)")
     is_continue = input() == "y"
