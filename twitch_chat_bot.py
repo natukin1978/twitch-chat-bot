@@ -106,7 +106,7 @@ async def main():
                     g.talk_buffers += " "
                 g.talk_buffers += message
 
-    print("前回の続きですか？(y/n)")
+    print("前回の続きですか？(y/n) ", end="")
     is_continue = input() == "y"
     if is_continue and OneCommeUsers.load_is_first_on_stream():
         print("挨拶キャッシュを復元しました。")
