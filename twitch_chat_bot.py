@@ -5,6 +5,9 @@ import logging
 import twitchio
 
 import global_value as g
+
+g.app_name = "twitch_chat_bot"
+
 from config_helper import readConfig
 from fuyuka_helper import Fuyuka
 from one_comme_users import OneCommeUsers
@@ -126,7 +129,7 @@ async def main():
 
     fuyukaApi_baseUrl = get_fuyukaApi_baseUrl()
     if fuyukaApi_baseUrl:
-        websocket_uri = f"{fuyukaApi_baseUrl}/chat/twitch_chat_bot"
+        websocket_uri = f"{fuyukaApi_baseUrl}/chat/{g.app_name}"
         asyncio.create_task(
             websocket_listen_forever(websocket_uri, recv_fuyuka_response, set_ws_fuyuka)
         )

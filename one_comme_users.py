@@ -8,7 +8,7 @@ from csv_helper import read_csv_to_list
 
 class OneCommeUsers:
     FILENAME_MAP_IS_FIRST_ON_STREAM = get_cache_filepath(
-        "ai_moderator_fuyuka_map_is_first_on_stream.pkl"
+        f"{g.app_name}_map_is_first_on_stream.pkl"
     )
 
     @staticmethod
