@@ -62,16 +62,26 @@ async def main():
             return ""
         return conf_nia["baseUrl"]
 
+    # 注意. 判定フラグを削除するため、受信ハンドラでこの関数を複数回呼んではいけない
+    def is_needs_response(json_data: dict[str, any]) -> bool:
+        if "youtube_chat_bot" in json_data["id"]:
+            return True
+
+        request_dateTime = json_data["request"]["dateTime"]
+        if request_dateTime not in g.set_needs_response:
+            return False
+
+        g.set_needs_response.discard(request_dateTime)
+        return True
+
     def set_ws_fuyuka(ws) -> None:
         g.websocket_fuyuka = ws
 
     async def recv_fuyuka_response(message: str) -> None:
         try:
             json_data = json.loads(message)
-            request_dateTime = json_data["request"]["dateTime"]
-            if request_dateTime not in g.set_needs_response:
+            if not is_needs_response(json_data):
                 return
-            g.set_needs_response.discard(request_dateTime)
             response_text = json_data["response"]
             if not response_text:
                 return
