@@ -4,7 +4,7 @@
     "accessToken": "oauth:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
   },
   "fuyukaApi": {
-    "baseUrl": "ws://127.0.0.1:8000",
+    "baseUrl": "ws://127.0.0.1:38321",
     "responseKeywords": [
       "知って",
       "教え",
@@ -21,7 +21,7 @@
     "apiKey": ""
   },
   "neoInnerApi": {
-    "baseUrl": "ws://127.0.0.1:50000"
+    "baseUrl": ""
   },
   "oneComme": {
     "pathUsersCsv": ""
