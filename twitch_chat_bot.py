@@ -32,7 +32,8 @@ g.set_exclude_id = set(readText("exclude_id.txt").splitlines())
 g.set_needs_response = set()
 g.talker_name = ""
 g.talk_buffers = ""
-g.websocket_fuyuka = None
+g.websocket_fuyuka_chat = None
+g.websocket_fuyuka_flow_story = None
 
 
 async def main():
@@ -74,10 +75,13 @@ async def main():
         g.set_needs_response.discard(request_dateTime)
         return True
 
-    def set_ws_fuyuka(ws) -> None:
-        g.websocket_fuyuka = ws
+    def set_ws_fuyuka_chat(ws) -> None:
+        g.websocket_fuyuka_chat = ws
 
-    async def recv_fuyuka_response(message: str) -> None:
+    def set_ws_fuyuka_flow_story(ws) -> None:
+        g.websocket_fuyuka_flow_story = ws
+
+    async def recv_fuyuka_chat_response(message: str) -> None:
         try:
             json_data = json.loads(message)
             if not is_needs_response(json_data):
@@ -106,27 +110,27 @@ async def main():
                 return
 
             is_response = has_keywords_response(message)
-            talk_buffers_len = len(g.talk_buffers)
             answerLevel = 2
-            if is_response or talk_buffers_len > 1000 or is_hit(answerLevel):
-                json_data = create_message_json()
-                json_data["id"] = g.config["twitch"]["loginChannel"]
-                json_data["displayName"] = g.talker_name
-                json_data["content"] = message.strip()
-                OneCommeUsers.update_message_json(json_data)
+            json_data = create_message_json()
+            json_data["id"] = g.config["twitch"]["loginChannel"]
+            json_data["displayName"] = g.talker_name
+            json_data["content"] = message.strip()
+            OneCommeUsers.update_message_json(json_data)
+            if is_response or is_hit(answerLevel):
                 if is_response:
                     # レスポンス有効時は追加の要望を無効化
                     del json_data["additionalRequests"]
                 await Fuyuka.send_message_by_json_with_buf(json_data, True)
             else:
-                if talk_buffers_len > 0:
-                    g.talk_buffers += " "
-                g.talk_buffers += message
+                await Fuyuka.flow_story_by_json(json_data)
 
     print("前回の続きですか？(y/n) ", end="")
     is_continue = input() == "y"
-    if is_continue and OneCommeUsers.load_is_first_on_stream():
-        print("挨拶キャッシュを復元しました。")
+    if is_continue:
+        if OneCommeUsers.load_is_first_on_stream():
+            print("挨拶キャッシュを復元しました。")
+    else:
+        await Fuyuka.reset_chat()
 
     client = twitchio.Client(
         token=g.config["twitch"]["accessToken"],
@@ -139,15 +143,25 @@ async def main():
 
     fuyukaApi_baseUrl = get_fuyukaApi_baseUrl()
     if fuyukaApi_baseUrl:
-        websocket_uri = f"{fuyukaApi_baseUrl}/chat/{g.app_name}"
         asyncio.create_task(
-            websocket_listen_forever(websocket_uri, recv_fuyuka_response, set_ws_fuyuka)
+            websocket_listen_forever(
+                f"{fuyukaApi_baseUrl}/chat/{g.app_name}",
+                recv_fuyuka_chat_response,
+                set_ws_fuyuka_chat,
+            )
+        )
+
+        asyncio.create_task(
+            websocket_listen_forever(
+                f"{fuyukaApi_baseUrl}/flow_story", None, set_ws_fuyuka_flow_story
+            )
         )
 
     neoInnerApi_baseUrl = get_neoInnerApi_baseUrl()
     if neoInnerApi_baseUrl:
-        websocket_uri = f"{neoInnerApi_baseUrl}/textonly"
-        asyncio.create_task(websocket_listen_forever(websocket_uri, recv_message))
+        asyncio.create_task(
+            websocket_listen_forever(f"{neoInnerApi_baseUrl}/textonly", recv_message)
+        )
 
     try:
         await asyncio.Future()
