@@ -2,8 +2,6 @@ import aiohttp
 import json
 
 import global_value as g
-from one_comme_users import OneCommeUsers
-from twitch_message_helper import create_message_json
 
 
 class Fuyuka:

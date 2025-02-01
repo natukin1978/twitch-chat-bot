@@ -31,7 +31,6 @@ g.one_comme_users = OneCommeUsers.read_one_comme_users()
 g.set_exclude_id = set(readText("exclude_id.txt").splitlines())
 g.set_needs_response = set()
 g.talker_name = ""
-g.talk_buffers = ""
 g.websocket_fuyuka_chat = None
 g.websocket_fuyuka_flow_story = None
 
