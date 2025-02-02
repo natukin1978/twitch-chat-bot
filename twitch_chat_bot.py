@@ -128,8 +128,8 @@ async def main():
     if is_continue:
         if OneCommeUsers.load_is_first_on_stream():
             print("挨拶キャッシュを復元しました。")
-    else:
-        await Fuyuka.reset_chat()
+        if await Fuyuka.restore():
+            print("Fuyukaの会話履歴を復元しました。")
 
     client = twitchio.Client(
         token=g.config["twitch"]["accessToken"],
