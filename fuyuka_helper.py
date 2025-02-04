@@ -23,13 +23,6 @@ class Fuyuka:
         await Fuyuka.send_message_by_json(json_data)
 
     @staticmethod
-    async def flow_story_by_json(json_data: dict[str, any]) -> None:
-        if not g.websocket_fuyuka_flow_story:
-            return
-        json_str = json.dumps(json_data)
-        await g.websocket_fuyuka_flow_story.send(json_str)
-
-    @staticmethod
     async def _get_request(command: str) -> dict[str, any]:
         conf_fa = g.config["fuyukaApi"]
         baseUrl = conf_fa["baseUrl"].replace("ws", "http")

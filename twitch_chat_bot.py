@@ -32,7 +32,6 @@ g.set_exclude_id = set(readText("exclude_id.txt").splitlines())
 g.set_needs_response = set()
 g.talker_name = ""
 g.websocket_fuyuka_chat = None
-g.websocket_fuyuka_flow_story = None
 
 
 async def main():
@@ -77,9 +76,6 @@ async def main():
     def set_ws_fuyuka_chat(ws) -> None:
         g.websocket_fuyuka_chat = ws
 
-    def set_ws_fuyuka_flow_story(ws) -> None:
-        g.websocket_fuyuka_flow_story = ws
-
     async def recv_fuyuka_chat_response(message: str) -> None:
         try:
             json_data = json.loads(message)
@@ -115,13 +111,19 @@ async def main():
             json_data["displayName"] = g.talker_name
             json_data["content"] = message.strip()
             OneCommeUsers.update_message_json(json_data)
+            message_type = ""
             if is_response or is_hit(answerLevel):
                 if is_response:
                     # レスポンス有効時は追加の要望を無効化
                     del json_data["additionalRequests"]
-                await Fuyuka.send_message_by_json_with_buf(json_data, True)
+                message_type = "chat"
             else:
-                await Fuyuka.flow_story_by_json(json_data)
+                message_type = "flow_story"
+
+            json_data["type"] = message_type  # この情報はAIに渡さずに削除される
+            await Fuyuka.send_message_by_json_with_buf(
+                json_data, message_type == "chat"
+            )
 
     print("前回の続きですか？(y/n) ", end="")
     is_continue = input() == "y"
@@ -147,12 +149,6 @@ async def main():
                 f"{fuyukaApi_baseUrl}/chat/{g.app_name}",
                 recv_fuyuka_chat_response,
                 set_ws_fuyuka_chat,
-            )
-        )
-
-        asyncio.create_task(
-            websocket_listen_forever(
-                f"{fuyukaApi_baseUrl}/flow_story", None, set_ws_fuyuka_flow_story
             )
         )
 

@@ -106,6 +106,7 @@ class TwitchBot(commands.Bot):
                 answerLevel = 100  # 常に回答してください
 
         needs_response = is_hit_by_message_json(answerLevel, json_data)
+        json_data["type"] = "chat"  # この情報はAIに渡さずに削除される
         await Fuyuka.send_message_by_json_with_buf(json_data, needs_response)
 
     @staticmethod
@@ -125,4 +126,5 @@ class TwitchBot(commands.Bot):
         json_data = create_message_json(ctx.message)
         json_data["content"] = text
         OneCommeUsers.update_additional_requests(json_data, 70)
+        json_data["type"] = "chat"  # この情報はAIに渡さずに削除される
         await Fuyuka.send_message_by_json_with_buf(json_data, True)
