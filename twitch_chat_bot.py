@@ -31,7 +31,6 @@ g.one_comme_users = OneCommeUsers.read_one_comme_users()
 g.set_exclude_id = set(readText("exclude_id.txt").splitlines())
 g.set_needs_response = set()
 g.talker_name = ""
-g.talk_buffers = ""
 g.websocket_fuyuka = None
 
 
@@ -106,22 +105,23 @@ async def main():
                 return
 
             is_response = has_keywords_response(message)
-            talk_buffers_len = len(g.talk_buffers)
             answerLevel = 2
-            if is_response or talk_buffers_len > 1000 or is_hit(answerLevel):
-                json_data = create_message_json()
-                json_data["id"] = g.config["twitch"]["loginChannel"]
-                json_data["displayName"] = g.talker_name
-                json_data["content"] = message.strip()
-                OneCommeUsers.update_message_json(json_data)
+            json_data = create_message_json()
+            json_data["id"] = g.config["twitch"]["loginChannel"]
+            json_data["displayName"] = g.talker_name
+            json_data["content"] = message.strip()
+            OneCommeUsers.update_message_json(json_data)
+            noisy = True
+            if is_response or is_hit(answerLevel):
                 if is_response:
                     # レスポンス有効時は追加の要望を無効化
                     del json_data["additionalRequests"]
-                await Fuyuka.send_message_by_json_with_buf(json_data, True)
-            else:
-                if talk_buffers_len > 0:
-                    g.talk_buffers += " "
-                g.talk_buffers += message
+                noisy = False
+
+            json_data["noisy"] = noisy
+            await Fuyuka.send_message_by_json_with_buf(
+                json_data, not noisy
+            )
 
     print("前回の続きですか？(y/n) ", end="")
     is_continue = input() == "y"
