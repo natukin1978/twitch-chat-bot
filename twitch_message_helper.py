@@ -16,6 +16,7 @@ def create_message_json(msg: twitchio.Message = None) -> dict[str, any]:
         "content": None,  # 関数外で設定してね
         "isFirst": False,
         "isFirstOnStream": None,  # すぐ下で設定する
+        "noisy": False,
         "additionalRequests": None,
     }
     if msg:

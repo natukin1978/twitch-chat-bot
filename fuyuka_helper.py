@@ -18,16 +18,6 @@ class Fuyuka:
     async def send_message_by_json_with_buf(
         json_data: dict[str, any], needs_response: bool
     ) -> None:
-        if len(g.talk_buffers) > 0:
-            # 溜まってたバッファ分を送ってクリアする
-            json_data_buffer = create_message_json()
-            json_data_buffer["id"] = g.config["twitch"]["loginChannel"]
-            json_data_buffer["displayName"] = g.talker_name
-            json_data_buffer["content"] = g.talk_buffers
-            OneCommeUsers.update_message_json(json_data_buffer)
-            g.talk_buffers = ""
-            await Fuyuka.send_message_by_json(json_data_buffer)
-        # 本命
         if needs_response:
             g.set_needs_response.add(json_data["dateTime"])
         await Fuyuka.send_message_by_json(json_data)
