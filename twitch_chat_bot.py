@@ -105,7 +105,7 @@ async def main():
                 return
 
             is_response = has_keywords_response(message)
-            answerLevel = 2
+            answerLevel = g.config["neoInnerApi"]["answerLevel"]
             json_data = create_message_json()
             json_data["id"] = g.config["twitch"]["loginChannel"]
             json_data["displayName"] = g.talker_name
