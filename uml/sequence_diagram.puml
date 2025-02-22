@@ -1,0 +1,18 @@
+@startuml
+skinparam BoxPadding 15
+hide footbox
+
+participant "配信サービス\n(Twitch)" as TW
+box "ローカルPC"
+participant "Twitch配信チャットBOT" as TW_CB
+participant "AIモデレーター Fuyuka API\n(電脳娘フユカ)" as AFA
+end box
+participant "対話型の生成AI\n(Google Gemini)" as GGA
+
+TW -> TW_CB : チャットコメント
+TW_CB -> AFA : WebSocket\n/chat/{id}
+AFA -> GGA : 配信モデレーターの\n役割を付加した命令
+AFA <-- GGA : AIが考えたコメント
+TW_CB <-- AFA : 非同期でコメント等が\nブロードキャストされる
+TW <-- TW_CB : 特定条件でコメントを投稿する
+@enduml
