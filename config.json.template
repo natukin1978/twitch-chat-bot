@@ -5,6 +5,14 @@
   },
   "fuyukaApi": {
     "baseUrl": "ws://127.0.0.1:38321",
+    "answerLevel": 16
+  },
+  "phantomJsCloud": {
+    "apiKey": ""
+  },
+  "neoInnerApi": {
+    "baseUrl": "",
+    "answerLevel": 2,
     "responseKeywords": [
       "知って",
       "教え",
@@ -16,12 +24,6 @@
       "死",
       "痛"
     ]
-  },
-  "phantomJsCloud": {
-    "apiKey": ""
-  },
-  "neoInnerApi": {
-    "baseUrl": ""
   },
   "oneComme": {
     "pathUsersCsv": ""

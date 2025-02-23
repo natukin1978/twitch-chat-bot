@@ -5,16 +5,15 @@
 このプロジェクトは、Twitchの配信チャットを監視してコメントを返すBOTです。
 
 このソフトウエア単体では配信チャットのコメントに返信できません。
-以下のソフトウエアを一緒に使う必要があります。
+[電脳娘フユカ (AIモデレーター Fuyuka API)](https://github.com/natukin1978/ai-moderator-fuyuka)を一緒に使う必要があります。
 
-[電脳娘フユカ (AIモデレーター Fuyuka API)](https://github.com/natukin1978/ai-moderator-fuyuka)
+#### シーケンス図
+
+![png](./images/sequence_diagram.png)
 
 ## 重要
 
 このソフトは基本的にノーサポートです。
-
-作者が制御できない、もしくは想像もしていない、不測の事態が起きる可能性が高いです。
-
 このソフトウェアの使用に関して、以下の点をご了承ください:
 
 - 本ソフトウェアの使用により生じた、いかなる損害、障害、トラブルについても、作者は一切の責任を負いません。
@@ -35,18 +34,17 @@
 
 ## 主な機能
 
-- 配信チャットを監視
-- モデレーター APIとのデータの送受信
-- チャットにコメントを投稿する
+- 配信チャットの監視&コメント投稿
+- AIモデレーター Fuyuka APIとの通信
 
-以下はオプション
+以下の機能はオプション
 
-- Webスクレイピング機能 (URLが含まれる場合、関連情報を返す)
-- 音声認識した情報をBOTに渡す(要 ゆかコネNeo)
+- Webスクレイピング機能 (要 PhantomJsCloud)
+- 音声認識した情報をAPIに渡す(要 ゆかコネNeo)
 
 ## 使用方法
 
-1. 各種アカウントの作成
+1. アカウントの作成
 2. Pythonのインストール
 3. ソースコード取得
 4. 依存ライブラリのインストール
@@ -57,12 +55,12 @@
 
 ### 1. アカウントの作成
 
-- Twitch
+#### Twitch
 
--- 配信チャンネル用
--- BOT用（チャットOAuthトークンも必要）
+- 配信チャンネル用
+- BOT用（チャットOAuthトークンも必要）
 
-配信チャンネル用だけでも可。その場合はこちらのチャットOAuthトークンを取得してください。
+配信チャンネル用だけでも運用は可能。その場合はこちらのチャットOAuthトークンを取得してください。
 
 ### 2. Pythonのインストール
 
@@ -95,23 +93,39 @@ pip install -r requirements.txt
 
 必須項目
 
-|キー|内容|
-|-|-|
-|twitch/loginChannel|チャンネルのユーザー名|
-|twitch/accessToken|TwitchチャットOAuthトークン https://twitchapps.com/tmi/|
-|fuyukaApi/baseUrl|電脳娘フユカ (AIモデレーター Fuyuka API) |
+| キー                  | 内容                                                         |
+| -                     | -                                                            |
+| twitch.loginChannel   | 対象のチャンネル名                                           |
+| twitch.accessToken    | TwitchチャットOAuthトークン <br> https://twitchapps.com/tmi/ |
+| fuyukaApi.baseUrl     | 電脳娘フユカ (AIモデレーター Fuyuka API)のエンドポイント     |
+| fuyukaApi.answerLevel | コメントに応答する確率                                       |
 
-以下はオプション
+以下の機能はオプション
 
-|キー|内容|
-|-|-|
-|phantomJsCloud/apiKey|Webスクレイピング API Key https://phantomjscloud.com/|
-|neoInnerApi|ゆかコネNeoの発話の受信(WebSocket,文のみ) https://nmori.github.io/yncneo-Docs/tech/tech_api_neo/#websocket_2|
-|oneComme/pathUsersCsv|わんコメのリスナーリストの情報を取り込みます(CSV出力したもの)|
+| キー                          | 内容                                                          |
+| -                             | -                                                             |
+| phantomJsCloud.apiKey         | Webスクレイピング API Key <br> https://phantomjscloud.com/    |
+| neoInnerApi.baseUrl           | ゆかコネNeoの発話の受信(WebSocket,文のみ)                     |
+| neoInnerApi.answerLevel       | 発話に応答する確率                                            |
+| neoInnerApi.responseKeywords  | 発話で必ず応答して欲しいキーワード群                          |
+| neoInnerApi.exclusionKeywords | 発話で無視して欲しいキーワード群                              |
+| oneComme.pathUsersCsv         | わんコメのリスナーリストの情報を取り込みます(CSV出力したもの) |
+
+##### neoInnerApi.baseUrl
+
+設定例は以下の通り
+
+```
+ws://127.0.0.1:50000
+```
+
+以下のインタフェースを使いますが`textonly`の部分は不要です。
+https://nmori.github.io/yncneo-Docs/tech/tech_api_neo/#websocket_2
 
 ### 6. 実行
 
 実行するには以下のコマンドを実行します。
+
 ただし、先に`電脳娘フユカ (AIモデレーター Fuyuka API)`が動作している必要があります。
 
 ```
@@ -120,7 +134,10 @@ python twitch_chat_bot.py
 
 ## 備考
 
+チャットコメント`!ai`というコマンドで必ず応答を返します。
+
 BOTが応答したくないユーザーを指定する事ができます。例えば翻訳アプリのユーザーとか
+
 `exclude_id.txt`というテキストファイルにユーザー名を改行区切りで列挙してください。
 
 例
@@ -139,9 +156,8 @@ natukiso_translator
 
 ナツキソ
 
-- Twitter: [@natukin1978](https://twitter.com/natukin1978)
+- X(旧Twitter): [@natukin1978](https://x.com/natukin1978)
 - Mastodon: [@natukin1978](https://mstdn.jp/@natukin1978)
-- Bluesky: [@natukin1978](https://bsky.app/profile/natukin1978.bsky.social)
 - Threads: [@natukin1978](https://www.threads.net/@natukin1978)
 - GitHub: [@natukin1978](https://github.com/natukin1978)
 - Mail: natukin1978@hotmail.com

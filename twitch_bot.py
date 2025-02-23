@@ -82,7 +82,7 @@ class TwitchBot(commands.Bot):
 
         json_data = create_message_json(msg)
         json_data["content"] = text
-        answerLevel = 16  # 1/6くらいの確率
+        answerLevel = g.config["fuyukaApi"]["answerLevel"]
 
         if g.config["phantomJsCloud"]["apiKey"]:
             url = TwitchBot.find_url(text)

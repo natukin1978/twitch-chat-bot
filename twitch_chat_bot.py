@@ -42,17 +42,17 @@ async def main():
         return conf_fa["baseUrl"]
 
     def has_keywords_response(message: str) -> bool:
-        conf_fa = g.config["fuyukaApi"]
-        if not conf_fa:
+        conf_nia = g.config["neoInnerApi"]
+        if not conf_nia:
             return False
-        response_keywords = conf_fa["responseKeywords"]
+        response_keywords = conf_nia["responseKeywords"]
         return next(filter(lambda v: v in message, response_keywords), None)
 
     def has_keywords_exclusion(message: str) -> bool:
-        conf_fa = g.config["fuyukaApi"]
-        if not conf_fa:
+        conf_nia = g.config["neoInnerApi"]
+        if not conf_nia:
             return False
-        exclusion_keywords = conf_fa["exclusionKeywords"]
+        exclusion_keywords = conf_nia["exclusionKeywords"]
         return next(filter(lambda v: v in message, exclusion_keywords), None)
 
     def get_neoInnerApi_baseUrl() -> str:
@@ -105,7 +105,7 @@ async def main():
                 return
 
             is_response = has_keywords_response(message)
-            answerLevel = 2
+            answerLevel = g.config["neoInnerApi"]["answerLevel"]
             json_data = create_message_json()
             json_data["id"] = g.config["twitch"]["loginChannel"]
             json_data["displayName"] = g.talker_name
