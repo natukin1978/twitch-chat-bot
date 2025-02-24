@@ -11,27 +11,27 @@ import global_value as g
 g.app_name = "twitch_chat_bot"
 g.base_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
 
-from config_helper import readConfig
+from config_helper import read_config
 from fuyuka_helper import Fuyuka
 from one_comme_users import OneCommeUsers
 from random_helper import is_hit
-from text_helper import readText
+from text_helper import read_text, read_text_set
 from twitch_bot import TwitchBot
 from twitch_message_helper import create_message_json
 from websocket_helper import websocket_listen_forever
 
-g.WEB_SCRAPING_PROMPT = readText("prompts/web_scraping_prompt.txt")
-g.ADDITIONAL_REQUESTS_PROMPT = readText("prompts/additional_requests_prompt.txt")
-g.WEB_SCRAPING_MESSAGE = readText("messages/web_scraping_message.txt")
+g.WEB_SCRAPING_PROMPT = read_text("prompts/web_scraping_prompt.txt")
+g.ADDITIONAL_REQUESTS_PROMPT = read_text("prompts/additional_requests_prompt.txt")
+g.WEB_SCRAPING_MESSAGE = read_text("messages/web_scraping_message.txt")
 
-g.config = readConfig()
+g.config = read_config()
 
 # ロガーの設定
 logging.basicConfig(level=logging.INFO)
 
 g.map_is_first_on_stream = {}
 g.one_comme_users = OneCommeUsers.read_one_comme_users()
-g.set_exclude_id = set(readText("exclude_id.txt").splitlines())
+g.set_exclude_id = read_text_set("exclude_id.txt")
 g.set_needs_response = set()
 g.talker_name = ""
 g.websocket_fuyuka = None
