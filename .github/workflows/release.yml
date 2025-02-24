@@ -1,0 +1,54 @@
+name: Release Windows Executable
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install -r requirements.txt
+
+      - name: Build executable with PyInstaller
+        run: pyinstaller --onefile twitch_chat_bot.py --name TwitchChatBot.exe
+
+      - name: Rename config.json
+        run: ren config.json.template config.json
+
+      - name: Rename messages
+        run: ren messages\web_scraping_message.txt.template web_scraping_message.txt
+
+      - name: Rename prompts
+        run: |
+          ren prompts\additional_requests_prompt.txt.template additional_requests_prompt.txt
+          ren prompts\web_scraping_prompt.txt.template web_scraping_prompt.txt
+
+      - name: Create release archive
+        run: |
+          $tagName = "${{ github.ref_name }}"
+          $zipName = "TwitchChatBot-$tagName.zip"
+          Compress-Archive -Path dist\TwitchChatBot.exe, LICENSE, README.md, config.json, images, messages, prompts -DestinationPath $zipName
+
+      - name: Upload release archive
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./TwitchChatBot-${{ github.ref_name }}.zip
+          asset_name: TwitchChatBot-${{ github.ref_name }}.zip
+          asset_content_type: application/zip
