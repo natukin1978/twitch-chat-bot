@@ -1,12 +1,15 @@
 import asyncio
 import json
 import logging
+import os
+import sys
 
 import twitchio
 
 import global_value as g
 
 g.app_name = "twitch_chat_bot"
+g.base_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
 
 from config_helper import readConfig
 from fuyuka_helper import Fuyuka
