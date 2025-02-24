@@ -24,7 +24,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Build executable with PyInstaller
-        run: pyinstaller --onefile twitch_chat_bot.py --name TwitchChatBot.exe
+        run: pyinstaller twitch_chat_bot.py --name TwitchChatBot.exe
 
       - name: Rename config.json
         run: ren config.json.template config.json
@@ -41,7 +41,7 @@ jobs:
         run: |
           $tagName = "${{ github.ref_name }}"
           $zipName = "TwitchChatBot-$tagName.zip"
-          Compress-Archive -Path dist\TwitchChatBot.exe, LICENSE, README.md, config.json, images, messages, prompts -DestinationPath $zipName
+          Compress-Archive -Path dist\TwitchChatBot.exe\TwitchChatBot.exe, dist\TwitchChatBot.exe\_internal, LICENSE, README.md, config.json, images, messages, prompts -DestinationPath $zipName
 
       - name: Upload release archive
         uses: actions/upload-release-asset@v1
