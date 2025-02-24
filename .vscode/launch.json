@@ -5,10 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger",
+            "name": "Run & Debug",
             "type": "debugpy",
             "request": "launch",
             "program": "twitch_chat_bot.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "UnitTest",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "run_tests.py",
             "console": "integratedTerminal"
         }
     ]
