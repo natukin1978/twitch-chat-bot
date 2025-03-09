@@ -12,6 +12,7 @@ g.app_name = "twitch_chat_bot"
 g.base_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
 
 from config_helper import read_config
+from function_skipper import FunctionSkipper
 from fuyuka_helper import Fuyuka
 from one_comme_users import OneCommeUsers
 from random_helper import is_hit
@@ -66,6 +67,11 @@ async def main():
 
     # 注意. 判定フラグを削除するため、受信ハンドラでこの関数を複数回呼んではいけない
     def is_needs_response(json_data: dict[str, any]) -> bool:
+        request_id = json_data["request"]["id"]
+        if fs_response.should_skip(request_id):
+            # 同じIDで頻繁にレス返すのを抑止
+            return False
+
         enable_chat_bots = {"youtube_chat_bot", "showroom_chat_bot", "openrec_chat_bot"}
         if json_data["id"] in enable_chat_bots:
             return True
@@ -129,6 +135,8 @@ async def main():
     is_continue = input() == "y"
     if is_continue and OneCommeUsers.load_is_first_on_stream():
         print("挨拶キャッシュを復元しました。")
+
+    fs_response = FunctionSkipper(20)
 
     client = twitchio.Client(
         token=g.config["twitch"]["accessToken"],
