@@ -31,7 +31,8 @@ async def websocket_listen_forever(
                         message = await asyncio.wait_for(
                             ws.recv(), timeout=reply_timeout
                         )
-                        await handle_message(message)
+                        if handle_message:
+                            await handle_message(message)
                     except (
                         asyncio.TimeoutError,
                         websockets.exceptions.ConnectionClosed,

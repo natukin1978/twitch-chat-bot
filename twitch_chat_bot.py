@@ -122,9 +122,7 @@ async def main():
                 noisy = False
 
             json_data["noisy"] = noisy
-            await Fuyuka.send_message_by_json_with_buf(
-                json_data, not noisy
-            )
+            await Fuyuka.send_message_by_json_with_buf(json_data, not noisy)
 
     print("前回の続きですか？(y/n) ", end="")
     is_continue = input() == "y"
