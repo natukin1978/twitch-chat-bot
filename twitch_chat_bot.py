@@ -30,6 +30,8 @@ g.config = read_config()
 # ロガーの設定
 logging.basicConfig(level=logging.INFO)
 
+logger = logging.getLogger(__name__)
+
 g.map_is_first_on_stream = {}
 g.one_comme_users = OneCommeUsers.read_one_comme_users()
 g.set_exclude_id = read_text_set("exclude_id.txt")
@@ -70,6 +72,7 @@ async def main():
         request_id = json_data["request"]["id"]
         if fs_response.should_skip(request_id):
             # 同じIDで頻繁にレス返すのを抑止
+            logger.info(f"間隔が空いてないのでスキップします。id = {request_id}")
             return False
 
         enable_chat_bots = {"youtube_chat_bot", "showroom_chat_bot", "openrec_chat_bot"}
