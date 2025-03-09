@@ -66,7 +66,8 @@ async def main():
 
     # 注意. 判定フラグを削除するため、受信ハンドラでこの関数を複数回呼んではいけない
     def is_needs_response(json_data: dict[str, any]) -> bool:
-        if "youtube_chat_bot" in json_data["id"] or "showroom_chat_bot" in json_data["id"]:
+        enable_chat_bots = {"youtube_chat_bot", "showroom_chat_bot", "openrec_chat_bot"}
+        if json_data["id"] in enable_chat_bots:
             return True
 
         request_dateTime = json_data["request"]["dateTime"]
