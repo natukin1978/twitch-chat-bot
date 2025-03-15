@@ -12,6 +12,7 @@ g.app_name = "twitch_chat_bot"
 g.base_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
 
 from config_helper import read_config
+from extract_commands import extract_commands
 from function_skipper import FunctionSkipper
 from fuyuka_helper import Fuyuka
 from one_comme_users import OneCommeUsers
@@ -96,23 +97,38 @@ async def main():
             if not response_text:
                 return
 
-            if response_text.startswith("/ban"):
+            commands = extract_commands(response_text)
+            len_cmd = len(commands)
+            if len_cmd > 1:
                 # モデレーターコマンド
-                values = response_text.split()
-                name = values[1]
-                await command_ban(name)
-                return
+                cmd = commands[0]
+                target_name = commands[1]
 
-            if response_text.startswith("/timeout"):
-                # モデレーターコマンド
-                values = response_text.split()
-                name = values[1]
-                if len(values) < 3:
-                    duration = 600
-                else:
-                    duration = int(values[2])
-                await command_timeout(name, duration)
-                return
+                mode_user_name = "fuyuka_ai"
+                mode_user, ban_user = await client.fetch_users(
+                    [mode_user_name, target_name]
+                )
+                p_user = client.create_user(mode_user.id, mode_user_name)
+
+                if cmd == "ban":
+                    await mode_user.ban_user(
+                        g.config["twitch"]["accessToken"],
+                        mode_user.id,
+                        ban_user.id,
+                        "disrupted the broadcast.",
+                    )
+                elif cmd == "timeout":
+                    if len_cmd < 3:
+                        duration = 600
+                    else:
+                        duration = int(commands[2])
+                    await mode_user.timeout_user(
+                        g.config["twitch"]["accessToken"],
+                        mode_user.id,
+                        ban_user.id,
+                        duration,
+                        "disrupted the broadcast.",
+                    )
 
             if not is_needs_response(json_data):
                 return
@@ -152,33 +168,6 @@ async def main():
 
             json_data["noisy"] = noisy
             await Fuyuka.send_message_by_json_with_buf(json_data, not noisy)
-
-    async def command_ban(name: str):
-        ban_users = await client.fetch_users([name])
-        ban_user = ban_users[0]
-
-        mode_id = 1100649670
-        mode_user = client.create_user(mode_id, "fuyuka_ai")
-        await mode_user.ban_user(
-            g.config["twitch"]["accessToken"],
-            mode_id,
-            ban_user.id,
-            "disrupted the broadcast.",
-        )
-
-    async def command_timeout(name: str, duration: int):
-        ban_users = await client.fetch_users([name])
-        ban_user = ban_users[0]
-
-        mode_id = 1100649670
-        mode_user = client.create_user(mode_id, "fuyuka_ai")
-        await mode_user.timeout_user(
-            g.config["twitch"]["accessToken"],
-            mode_id,
-            ban_user.id,
-            duration,
-            "disrupted the broadcast.",
-        )
 
     print("前回の続きですか？(y/n) ", end="")
     is_continue = input() == "y"
