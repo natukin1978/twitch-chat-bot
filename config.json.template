@@ -1,7 +1,7 @@
 {
   "twitch": {
     "loginChannel": "",
-    "accessToken": "oauth:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    "accessToken": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
   },
   "fuyukaApi": {
     "baseUrl": "ws://127.0.0.1:38321",
