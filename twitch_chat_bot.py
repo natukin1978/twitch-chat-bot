@@ -105,7 +105,7 @@ async def main():
                 target_name = commands[1]
 
                 mode_user_name = "fuyuka_ai"
-                mode_user, ban_user = await client.fetch_users(
+                mode_user, target_user = await client.fetch_users(
                     [mode_user_name, target_name]
                 )
 
@@ -114,7 +114,7 @@ async def main():
                     cmd_result = await mode_user.ban_user(
                         g.config["twitch"]["accessToken"],
                         mode_user.id,
-                        ban_user.id,
+                        target_user.id,
                         "disrupted the broadcast.",
                     )
                 elif cmd == "timeout":
@@ -125,7 +125,7 @@ async def main():
                     cmd_result = await mode_user.timeout_user(
                         g.config["twitch"]["accessToken"],
                         mode_user.id,
-                        ban_user.id,
+                        target_user.id,
                         duration,
                         "disrupted the broadcast.",
                     )
