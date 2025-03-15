@@ -16,10 +16,9 @@ def extract_commands(text: str) -> list[str]:
 
     result = []
     for match in matches:
-        if match.start() == 0 or text[match.start() - 1] != " ":
-            result.append(match.group("command"))
-            args_str = match.group("args").strip()
-            if args_str:
-                result.extend(args_str.split())
+        result.append(match.group("command"))
+        args_str = match.group("args").strip()
+        if args_str:
+            result.extend(args_str.split())
 
     return result
