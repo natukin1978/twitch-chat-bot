@@ -108,7 +108,6 @@ async def main():
                 mode_user, ban_user = await client.fetch_users(
                     [mode_user_name, target_name]
                 )
-                p_user = client.create_user(mode_user.id, mode_user_name)
 
                 cmd_result = None
                 if cmd == "ban":
