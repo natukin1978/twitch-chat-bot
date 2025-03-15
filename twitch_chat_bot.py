@@ -105,7 +105,7 @@ async def main():
                 target_name = commands[1]
 
                 mode_user_name = "fuyuka_ai"
-                mode_user, target_user = await client.fetch_users(
+                mode_user, target_user = await bot.fetch_users(
                     [mode_user_name, target_name]
                 )
 
@@ -134,7 +134,7 @@ async def main():
 
             if not is_needs_response(json_data):
                 return
-            await client.get_channel(g.config["twitch"]["loginChannel"]).send(
+            await bot.get_channel(g.config["twitch"]["loginChannel"]).send(
                 response_text
             )
         except json.JSONDecodeError:
@@ -177,12 +177,6 @@ async def main():
         print("挨拶キャッシュを復元しました。")
 
     fs_response = FunctionSkipper(20)
-
-    client = twitchio.Client(
-        token=g.config["twitch"]["accessToken"],
-        initial_channels=[g.config["twitch"]["loginChannel"]],
-    )
-    await client.connect()
 
     bot = TwitchBot()
     await bot.connect()
