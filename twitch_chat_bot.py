@@ -110,8 +110,9 @@ async def main():
                 )
                 p_user = client.create_user(mode_user.id, mode_user_name)
 
+                cmd_result = None
                 if cmd == "ban":
-                    await mode_user.ban_user(
+                    cmd_result = await mode_user.ban_user(
                         g.config["twitch"]["accessToken"],
                         mode_user.id,
                         ban_user.id,
@@ -122,13 +123,15 @@ async def main():
                         duration = 600
                     else:
                         duration = int(commands[2])
-                    await mode_user.timeout_user(
+                    cmd_result = await mode_user.timeout_user(
                         g.config["twitch"]["accessToken"],
                         mode_user.id,
                         ban_user.id,
                         duration,
                         "disrupted the broadcast.",
                     )
+                if cmd_result:
+                    logger.info(cmd_result)
 
             if not is_needs_response(json_data):
                 return
