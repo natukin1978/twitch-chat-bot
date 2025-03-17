@@ -148,8 +148,7 @@ async def main():
 
         cmd = commands[0]
         target_name = commands[1]
-        mode_user_name = "fuyuka_ai"
-        mode_user, target_user = await bot.fetch_users([mode_user_name, target_name])
+        mode_user, target_user = await bot.fetch_users([bot.nick, target_name])
 
         if not mode_user or not target_user:
             return
