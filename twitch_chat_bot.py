@@ -12,6 +12,7 @@ g.app_name = "twitch_chat_bot"
 g.base_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
 
 from config_helper import read_config
+from extract_commands import extract_commands
 from function_skipper import FunctionSkipper
 from fuyuka_helper import Fuyuka
 from one_comme_users import OneCommeUsers
@@ -69,11 +70,6 @@ async def main():
 
     # 注意. 判定フラグを削除するため、受信ハンドラでこの関数を複数回呼んではいけない
     def is_needs_response(json_data: dict[str, any]) -> bool:
-        response_text = json_data["response"]
-        if response_text.startswith("/"):
-            # モデレーターコマンド
-            return True
-
         request_id = json_data["request"]["id"]
         if fs_response.should_skip(request_id):
             # 同じIDで頻繁にレス返すのを抑止
@@ -97,14 +93,16 @@ async def main():
     async def recv_fuyuka_response(message: str) -> None:
         try:
             json_data = json.loads(message)
-            if not is_needs_response(json_data):
-                return
             response_text = json_data["response"]
             if not response_text:
                 return
-            await client.get_channel(g.config["twitch"]["loginChannel"]).send(
-                response_text
-            )
+
+            asyncio.create_task(execute_command(response_text))
+
+            if not is_needs_response(json_data):
+                return
+            channel = bot.get_channel(g.config["twitch"]["loginChannel"])
+            await channel.send(response_text)
         except json.JSONDecodeError:
             pass
 
@@ -139,18 +137,52 @@ async def main():
             json_data["noisy"] = noisy
             await Fuyuka.send_message_by_json_with_buf(json_data, not noisy)
 
+    async def execute_command(response_text: str):
+        commands = extract_commands(response_text)
+        if not commands:
+            return
+
+        len_cmd = len(commands)
+        if len_cmd < 2:
+            return
+
+        cmd = commands[0]
+        target_name = commands[1]
+        mode_user, target_user = await bot.fetch_users([bot.nick, target_name])
+
+        if not mode_user or not target_user:
+            return
+
+        # モデレーターコマンド
+        cmd_result = None
+        if cmd == "ban":
+            cmd_result = await mode_user.ban_user(
+                g.config["twitch"]["accessToken"],
+                mode_user.id,
+                target_user.id,
+                "disrupted the broadcast.",
+            )
+        elif cmd == "timeout":
+            if len_cmd < 3:
+                duration = 600
+            else:
+                duration = int(commands[2])
+            cmd_result = await mode_user.timeout_user(
+                g.config["twitch"]["accessToken"],
+                mode_user.id,
+                target_user.id,
+                duration,
+                "disrupted the broadcast.",
+            )
+        if cmd_result:
+            logger.info(cmd_result)
+
     print("前回の続きですか？(y/n) ", end="")
     is_continue = input() == "y"
     if is_continue and OneCommeUsers.load_is_first_on_stream():
         print("挨拶キャッシュを復元しました。")
 
     fs_response = FunctionSkipper(20)
-
-    client = twitchio.Client(
-        token=g.config["twitch"]["accessToken"],
-        initial_channels=[g.config["twitch"]["loginChannel"]],
-    )
-    await client.connect()
 
     bot = TwitchBot()
     await bot.connect()
