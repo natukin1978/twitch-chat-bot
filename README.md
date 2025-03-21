@@ -67,12 +67,12 @@
 
 必須項目
 
-| キー                  | 内容                                                         |
-| -                     | -                                                            |
-| twitch.loginChannel   | 対象のチャンネル名                                           |
-| twitch.accessToken    | TwitchチャットOAuthトークン <br> https://twitchapps.com/tmi/ |
-| fuyukaApi.baseUrl     | 電脳娘フユカ (AIモデレーター Fuyuka API)のエンドポイント     |
-| fuyukaApi.answerLevel | コメントに応答する確率                                       |
+| キー                  | 内容                                                                                    |
+| -                     | -                                                                                       |
+| twitch.loginChannel   | 対象のチャンネル名                                                                      |
+| twitch.accessToken    | TwitchチャットOAuthトークン <br> https://natukin1978.github.io/natsu-bot-auth-receiver/ |
+| fuyukaApi.baseUrl     | 電脳娘フユカ (AIモデレーター Fuyuka API)のエンドポイント                                |
+| fuyukaApi.answerLevel | コメントに応答する確率                                                                  |
 
 以下の機能はオプション
 
