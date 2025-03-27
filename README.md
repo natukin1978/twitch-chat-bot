@@ -61,29 +61,42 @@
 
 ### 2. 設定
 
-#### 基本設定
+※ JSONファイルを編集する場合、JSON形式をサポートしているテキストエディタの使用を推奨します。
 
-`config.json.template`を`config.json`にコピーもしくはリネームして設定変更を行います。
+### config.json
 
 必須項目
 
-| キー                  | 内容                                                                                    |
-| -                     | -                                                                                       |
-| twitch.loginChannel   | 対象のチャンネル名                                                                      |
-| twitch.accessToken    | TwitchチャットOAuthトークン <br> https://natukin1978.github.io/natsu-bot-auth-receiver/ |
-| fuyukaApi.baseUrl     | 電脳娘フユカ (AIモデレーター Fuyuka API)のエンドポイント                                |
-| fuyukaApi.answerLevel | コメントに応答する確率                                                                  |
+| キー                              | 内容                                                                                    |
+|-----------------------------------|-----------------------------------------------------------------------------------------|
+| twitch.loginChannel               | 対象のチャンネル名                                                                      |
+| twitch.accessToken                | TwitchチャットOAuthトークン <br> https://natukin1978.github.io/natsu-bot-auth-receiver/ |
+| fuyukaApi.baseUrl                 | 電脳娘フユカ (AIモデレーター Fuyuka API)のエンドポイント                                |
+| fuyukaApi.answerLevel             | コメントに応答する確率                                                                  |
+| fuyukaApi.answerLength            | 応答して欲しい文字数                                                                    |
+| fuyukaApi.skipDuplicateIdInterval | 同一IDの場合にスキップしたい時間(秒)                                                    |
 
 以下の機能はオプション
 
 | キー                          | 内容                                                          |
-| -                             | -                                                             |
+|-------------------------------|---------------------------------------------------------------|
 | phantomJsCloud.apiKey         | Webスクレイピング API Key <br> https://phantomjscloud.com/    |
 | neoInnerApi.baseUrl           | ゆかコネNeoの発話の受信(WebSocket,文のみ)                     |
 | neoInnerApi.answerLevel       | 発話に応答する確率                                            |
 | neoInnerApi.responseKeywords  | 発話で必ず応答して欲しいキーワード群                          |
 | neoInnerApi.exclusionKeywords | 発話で無視して欲しいキーワード群                              |
 | oneComme.pathUsersCsv         | わんコメのリスナーリストの情報を取り込みます(CSV出力したもの) |
+
+##### fuyukaApi.answerLength
+
+以下の内容に関して応答する文字数を指定できます。
+ただし目安であり、守られない事が多々あります。
+
+| キー        | 内容              |
+|-------------|-------------------|
+| default     | 通常              |
+| aiCmd       | AIコマンド        |
+| webScraping | Webスクレイピング |
 
 ##### neoInnerApi.baseUrl
 
