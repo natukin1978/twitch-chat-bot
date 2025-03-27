@@ -182,7 +182,7 @@ async def main():
     if is_continue and OneCommeUsers.load_is_first_on_stream():
         print("挨拶キャッシュを復元しました。")
 
-    fs_response = FunctionSkipper(20)
+    fs_response = FunctionSkipper(g.config["fuyukaApi"]["skipDuplicateIdInterval"])
 
     bot = TwitchBot()
     await bot.connect()
