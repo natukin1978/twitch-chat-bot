@@ -101,8 +101,8 @@ class TwitchBot(commands.Bot):
                     content = await TwitchBot.web_scraping(url, "plainText")
 
                 json_data["content"] = g.WEB_SCRAPING_PROMPT + "\n" + content
-                # Webの内容なのでちょっと大目に見る
-                OneCommeUsers.update_additional_requests(json_data, 120)
+                answer_length = g.config["fuyukaApi"]["answerLength"]["webScraping"]
+                OneCommeUsers.update_additional_requests(json_data, answer_length)
                 answerLevel = 100  # 常に回答してください
 
         needs_response = is_hit_by_message_json(answerLevel, json_data)
@@ -124,5 +124,6 @@ class TwitchBot(commands.Bot):
 
         json_data = create_message_json(ctx.message)
         json_data["content"] = text
-        OneCommeUsers.update_additional_requests(json_data, 70)
+        answer_length = g.config["fuyukaApi"]["answerLength"]["aiCmd"]
+        OneCommeUsers.update_additional_requests(json_data, answer_length)
         await Fuyuka.send_message_by_json_with_buf(json_data, True)
