@@ -33,14 +33,11 @@ class TwitchBot(commands.Bot):
         # 正規表現パターン
         # このパターンは、httpやhttpsプロトコルを含むURLを検索します。
         # 特に、ドメイン名やサブドメイン、ポート番号などを考慮しています。
-        RE_URL = r'\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`()\[\]{};:\'".,<>?«»“”‘’]))'
-
+        RE_URL = r"https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"
         urls = re.findall(RE_URL, text)
-        if not urls:
-            return ""
-
-        # 最初の要素だけを返す
-        return urls[0][0]
+        if urls:
+            return urls[0]  # 最初のURLを返す
+        return ""
 
     @staticmethod
     async def web_scraping(url: str, renderType: str) -> str:
