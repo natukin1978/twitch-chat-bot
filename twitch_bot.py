@@ -21,10 +21,11 @@ logger = logging.getLogger(__name__)
 
 class TwitchBot(commands.Bot):
     def __init__(self):
+        self.login_channel = g.config["twitch"]["loginChannel"]
         super().__init__(
             token=g.config["twitch"]["accessToken"],
             prefix="!",
-            initial_channels=[g.config["twitch"]["loginChannel"]],
+            initial_channels=[self.login_channel],
         )
 
     @staticmethod
@@ -63,21 +64,15 @@ class TwitchBot(commands.Bot):
         elem_strings = elem.stripped_strings
         return [elem_string for elem_string in elem_strings]
 
-    @staticmethod
-    async def send_message(content: str, json_data: dict[str, any] = None):
-        if not json_data:
-            json_data = create_message_json()
-
-        json_data["content"] = content
-        answerLevel = g.config["fuyukaApi"]["answerLevel"]
-
+    async def send_message(self, json_data: dict[str, any], answerLevel: int):
         if g.config["phantomJsCloud"]["apiKey"]:
+            content = json_data["content"]
             url = TwitchBot.find_url(content)
             if url:
                 # Webスクレイピングを表明する
-                await msg.channel.send(g.WEB_SCRAPING_MESSAGE)
+                channel = self.get_channel(self.login_channel)
+                await channel.send(g.WEB_SCRAPING_MESSAGE)
 
-                content = None
                 if "www.twitch.tv" in url:
                     content = await TwitchBot.web_scraping(url, "html")
                     contents_list = TwitchBot.get_all_contents(
@@ -95,7 +90,7 @@ class TwitchBot(commands.Bot):
         needs_response = is_hit_by_message_json(answerLevel, json_data)
         await Fuyuka.send_message_by_json_with_buf(json_data, needs_response)
 
-    async def do_time_signal(message: str):
+    async def do_time_signal(self, message: str):
         while True:
             now = datetime.datetime.now()
             next_hour = now.replace(
@@ -103,29 +98,35 @@ class TwitchBot(commands.Bot):
             ) + datetime.timedelta(hours=1)
             wait_seconds = (next_hour - now).seconds
             await asyncio.sleep(wait_seconds)
-            await TwitchBot.send_message(message)
 
-    async def event_message(self, msg: twitchio.Message):
-        if msg.echo:
+            json_data = create_message_json()
+            json_data["content"] = message
+            answerLevel = 100
+            await self.send_message(json_data, answerLevel)
+
+    async def event_message(self, message: twitchio.Message):
+        if message.echo:
             return
 
-        id = msg.author.name
+        id = message.author.name
         if id in g.set_exclude_id:
             # 無視するID
             return
 
-        if msg.content.startswith("!"):
-            await self.handle_commands(msg)
+        if message.content.startswith("!"):
+            await self.handle_commands(message)
             return
 
         emotes = []
-        add_emotes(emotes, msg)
-        text = remove_emote(msg.content, emotes)
+        add_emotes(emotes, message)
+        text = remove_emote(message.content, emotes)
         if not text:
             return
 
-        json_data = create_message_json(msg)
-        await TwitchBot.send_message(text, json_data)
+        json_data = create_message_json(message)
+        json_data["content"] = text
+        answerLevel = g.config["fuyukaApi"]["answerLevel"]
+        await self.send_message(json_data, answerLevel)
 
     @staticmethod
     def get_cmd_value(content: str) -> str:
