@@ -84,13 +84,14 @@ class TwitchBot(commands.Bot):
         needs_response = is_hit_by_message_json(answerLevel, json_data)
         await Fuyuka.send_message_by_json_with_buf(json_data, needs_response)
 
-    async def do_time_signal(self, message: str):
+    async def do_time_signal(self, interval_minutes: int, message: str):
         while True:
             now = datetime.datetime.now()
-            next_hour = now.replace(
-                minute=0, second=0, microsecond=0
-            ) + datetime.timedelta(hours=1)
-            wait_seconds = (next_hour - now).seconds
+            minutes = now.minute
+            remainder = minutes % interval_minutes
+            next_time = now + datetime.timedelta(minutes=interval_minutes - remainder)
+            next_time = next_time.replace(second=0, microsecond=0)
+            wait_seconds = (next_time - now).seconds
             await asyncio.sleep(wait_seconds)
 
             json_data = create_message_json()
