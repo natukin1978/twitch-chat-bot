@@ -13,6 +13,9 @@
     },
     "skipDuplicateIdInterval": 20
   },
+  "timeSignal": {
+    "message": ""
+  },
   "phantomJsCloud": {
     "apiKey": ""
   },
