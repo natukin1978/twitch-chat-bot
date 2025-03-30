@@ -1,3 +1,5 @@
+import asyncio
+import datetime
 import json
 import logging
 import re
@@ -61,31 +63,16 @@ class TwitchBot(commands.Bot):
         elem_strings = elem.stripped_strings
         return [elem_string for elem_string in elem_strings]
 
-    async def event_message(self, msg: twitchio.Message):
-        if msg.echo:
-            return
+    @staticmethod
+    async def send_message(content: str, json_data: dict[str, any] = None):
+        if not json_data:
+            json_data = create_message_json()
 
-        id = msg.author.name
-        if id in g.set_exclude_id:
-            # 無視するID
-            return
-
-        if msg.content.startswith("!"):
-            await self.handle_commands(msg)
-            return
-
-        emotes = []
-        add_emotes(emotes, msg)
-        text = remove_emote(msg.content, emotes)
-        if not text:
-            return
-
-        json_data = create_message_json(msg)
-        json_data["content"] = text
+        json_data["content"] = content
         answerLevel = g.config["fuyukaApi"]["answerLevel"]
 
         if g.config["phantomJsCloud"]["apiKey"]:
-            url = TwitchBot.find_url(text)
+            url = TwitchBot.find_url(content)
             if url:
                 # Webスクレイピングを表明する
                 await msg.channel.send(g.WEB_SCRAPING_MESSAGE)
@@ -107,6 +94,38 @@ class TwitchBot(commands.Bot):
 
         needs_response = is_hit_by_message_json(answerLevel, json_data)
         await Fuyuka.send_message_by_json_with_buf(json_data, needs_response)
+
+    async def do_time_signal(message: str):
+        while True:
+            now = datetime.datetime.now()
+            next_hour = now.replace(
+                minute=0, second=0, microsecond=0
+            ) + datetime.timedelta(hours=1)
+            wait_seconds = (next_hour - now).seconds
+            await asyncio.sleep(wait_seconds)
+            await TwitchBot.send_message(message)
+
+    async def event_message(self, msg: twitchio.Message):
+        if msg.echo:
+            return
+
+        id = msg.author.name
+        if id in g.set_exclude_id:
+            # 無視するID
+            return
+
+        if msg.content.startswith("!"):
+            await self.handle_commands(msg)
+            return
+
+        emotes = []
+        add_emotes(emotes, msg)
+        text = remove_emote(msg.content, emotes)
+        if not text:
+            return
+
+        json_data = create_message_json(msg)
+        await TwitchBot.send_message(text, json_data)
 
     @staticmethod
     def get_cmd_value(content: str) -> str:
