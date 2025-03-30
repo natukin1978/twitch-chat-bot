@@ -69,10 +69,7 @@ class TwitchBot(commands.Bot):
             content = json_data["content"]
             url = TwitchBot.find_url(content)
             if url:
-                # Webスクレイピングを表明する
-                channel = self.get_channel(self.login_channel)
-                await channel.send(g.WEB_SCRAPING_MESSAGE)
-
+                logger.info("web_scraping: " + url)
                 if "www.twitch.tv" in url:
                     content = await TwitchBot.web_scraping(url, "html")
                     contents_list = TwitchBot.get_all_contents(
