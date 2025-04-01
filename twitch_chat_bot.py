@@ -199,6 +199,12 @@ async def main():
         websocket_uri = f"{neoInnerApi_baseUrl}/textonly"
         asyncio.create_task(websocket_listen_forever(websocket_uri, recv_message))
 
+    time_signal_interval_minutes = g.config["timeSignal"]["intervalMinutes"]
+    if time_signal_interval_minutes > 0:
+        time_signal_message = g.config["timeSignal"]["message"]
+        if time_signal_message:
+            asyncio.create_task(bot.do_time_signal(time_signal_interval_minutes, time_signal_message))
+
     try:
         await asyncio.Future()
     except KeyboardInterrupt:

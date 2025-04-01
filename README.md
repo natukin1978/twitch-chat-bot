@@ -80,6 +80,7 @@
 
 | キー                          | 内容                                                          |
 |-------------------------------|---------------------------------------------------------------|
+| timeSignal                    | 時報機能                                                      |
 | phantomJsCloud.apiKey         | Webスクレイピング API Key <br> https://phantomjscloud.com/    |
 | neoInnerApi.baseUrl           | ゆかコネNeoの発話の受信(WebSocket,文のみ)                     |
 | neoInnerApi.answerLevel       | 発話に応答する確率                                            |
@@ -97,6 +98,36 @@
 | default     | 通常              |
 | aiCmd       | AIコマンド        |
 | webScraping | Webスクレイピング |
+
+##### timeSignal
+
+時報機能
+
+定期的に実行させたい時に使用します。
+`intervalMinutes`は実行周期[分]で、`message`はAIに渡すメッセージです。
+処理した結果が、コメント投稿されます。
+
+例. 時報と一言メッセージ
+
+```json
+"timeSignal": {
+  "intervalMinutes": 60,
+  "message": "時報と一言メッセージをお願いします。"
+},
+```
+
+※ 0, 1, 2 ... といった N時0分0秒毎に実行されます。
+
+例. 30分毎にYahoo News(速報)を要約する
+
+```json
+"timeSignal": {
+  "intervalMinutes": 30,
+  "message": "https://news.yahoo.co.jp/flash"
+},
+```
+
+※ 要 PhantomJsCloud
 
 ##### neoInnerApi.baseUrl
 
