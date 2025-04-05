@@ -95,7 +95,10 @@ class TwitchBot(commands.Bot):
             await asyncio.sleep(wait_seconds)
 
             json_data = create_message_json()
-            json_data["content"] = message
+            json_data["id"] = g.config["twitch"]["loginChannel"]
+            json_data["displayName"] = g.talker_name
+            json_data["content"] = message.strip()
+            OneCommeUsers.update_message_json(json_data)
             answerLevel = 100
             await self.send_message(json_data, answerLevel)
 
