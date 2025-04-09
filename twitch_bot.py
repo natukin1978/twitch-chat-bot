@@ -16,6 +16,7 @@ from fuyuka_helper import Fuyuka
 from one_comme_users import OneCommeUsers
 from random_helper import is_hit_by_message_json
 from twitch_message_helper import create_message_json
+from time_signal_helper import calculate_next_time
 
 logger = logging.getLogger(__name__)
 
@@ -94,26 +95,8 @@ class TwitchBot(commands.Bot):
                 continue
 
             now = datetime.datetime.now()
-            minutes = now.minute
-            remainder = minutes % interval_minutes
-
-            # 次の時報の「分」を計算
-            minutes_to_wait = interval_minutes - remainder
-            next_minute = (minutes + minutes_to_wait) % 60
-            next_hour = now.hour + (minutes + minutes_to_wait) // 60
-
-            # 次の時報の時刻を生成
-            next_time = now.replace(
-                hour=next_hour % 24, minute=next_minute, second=0, microsecond=0
-            )
-
-            # 待機秒数を計算
+            next_time = calculate_next_time(now, interval_minutes)
             wait_seconds = (next_time - now).total_seconds()
-
-            # 念のため、負の待機時間にならないように調整
-            if wait_seconds < 0:
-                wait_seconds += interval_minutes * 60
-
             await asyncio.sleep(wait_seconds)
 
             json_data = create_message_json()
