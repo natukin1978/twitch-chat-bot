@@ -203,7 +203,9 @@ async def main():
     if time_signal_interval_minutes > 0:
         time_signal_message = g.config["timeSignal"]["message"]
         if time_signal_message:
-            asyncio.create_task(bot.do_time_signal(time_signal_interval_minutes, time_signal_message))
+            asyncio.create_task(
+                bot.do_time_signal(time_signal_interval_minutes, time_signal_message)
+            )
 
     try:
         await asyncio.Future()

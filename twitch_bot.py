@@ -11,6 +11,7 @@ from twitchio.ext import commands
 
 import global_value as g
 from emote_helper import add_emotes, remove_emote
+from function_skipper import FunctionSkipper
 from fuyuka_helper import Fuyuka
 from one_comme_users import OneCommeUsers
 from random_helper import is_hit_by_message_json
@@ -85,7 +86,13 @@ class TwitchBot(commands.Bot):
         await Fuyuka.send_message_by_json_with_buf(json_data, needs_response)
 
     async def do_time_signal(self, interval_minutes: int, message: str):
+        fs_time_signal = FunctionSkipper(45)
         while True:
+            if fs_time_signal.should_skip(""):
+                # 念のため、頻繁に処理されないようにする
+                await asyncio.sleep(1)
+                continue
+
             now = datetime.datetime.now()
             minutes = now.minute
             remainder = minutes % interval_minutes
