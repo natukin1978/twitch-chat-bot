@@ -42,6 +42,12 @@ class TestCalculateNextTime(unittest.TestCase):
         expected = datetime.datetime(2025, 4, 10, 12, 0, 0)
         self.assertEqual(calculate_next_time(now, interval), expected)
 
+    def test_interval_60_next_day(self):
+        now      = datetime.datetime(2025, 4, 10, 23, 55, 0)
+        interval = 60
+        expected = datetime.datetime(2025, 4, 11,  0,  0, 0)
+        self.assertEqual(calculate_next_time(now, interval), expected)
+
     def test_interval_15(self):
         now = datetime.datetime(2025, 4, 10, 10, 7, 0)
         interval = 15
