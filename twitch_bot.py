@@ -15,8 +15,8 @@ from function_skipper import FunctionSkipper
 from fuyuka_helper import Fuyuka
 from one_comme_users import OneCommeUsers
 from random_helper import is_hit_by_message_json
-from twitch_message_helper import create_message_json
 from time_signal_helper import calculate_next_time
+from twitch_message_helper import create_message_json
 
 logger = logging.getLogger(__name__)
 
