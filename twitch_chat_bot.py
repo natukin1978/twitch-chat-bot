@@ -70,6 +70,9 @@ async def main():
 
     # 注意. 判定フラグを削除するため、受信ハンドラでこの関数を複数回呼んではいけない
     def is_needs_response(json_data: dict[str, any]) -> bool:
+        if json_data["errorCode"]:
+            return True
+
         request_id = json_data["request"]["id"]
         if fs_response.should_skip(request_id):
             # 同じIDで頻繁にレス返すのを抑止
