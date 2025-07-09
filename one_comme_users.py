@@ -22,12 +22,9 @@ class OneCommeUsers:
 
     @staticmethod
     def get_nickname(displayName: str) -> str:
-        if not g.one_comme_users:
-            return None
+        one_comme_users = OneCommeUsers.read_one_comme_users()
 
-        filtered_rows = list(
-            filter(lambda row: row[1] == displayName, g.one_comme_users)
-        )
+        filtered_rows = list(filter(lambda row: row[1] == displayName, one_comme_users))
         for filtered_row in filtered_rows:
             nickname = filtered_row[4]
             if nickname:
