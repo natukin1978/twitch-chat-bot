@@ -38,6 +38,7 @@ g.set_exclude_id = read_text_set("exclude_id.txt")
 g.set_needs_response = set()
 g.talker_name = ""
 g.websocket_fuyuka = None
+g.latest_response_text = ""
 
 
 async def main():
@@ -100,6 +101,12 @@ async def main():
                 return
 
             asyncio.create_task(execute_command(response_text))
+
+            # 前回と同じならスキップ
+            if g.latest_response_text == response_text:
+                logger.info("同じ内容なのでスキップします")
+                return
+            g.latest_response_text = response_text
 
             if not is_needs_response(json_data):
                 return
