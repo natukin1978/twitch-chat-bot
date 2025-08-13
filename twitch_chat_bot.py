@@ -15,6 +15,7 @@ from config_helper import read_config
 from extract_commands import extract_commands
 from function_skipper import FunctionSkipper
 from fuyuka_helper import Fuyuka
+from keywords_helper import has_keywords_exclusion, has_keywords_response
 from one_comme_users import OneCommeUsers
 from random_helper import is_hit
 from text_helper import read_text, read_text_set
@@ -47,20 +48,6 @@ async def main():
         if not conf_fa:
             return ""
         return conf_fa["baseUrl"]
-
-    def has_keywords_response(message: str) -> bool:
-        conf_nia = g.config["neoInnerApi"]
-        if not conf_nia:
-            return False
-        response_keywords = conf_nia["responseKeywords"]
-        return next(filter(lambda v: v in message, response_keywords), None)
-
-    def has_keywords_exclusion(message: str) -> bool:
-        conf_nia = g.config["neoInnerApi"]
-        if not conf_nia:
-            return False
-        exclusion_keywords = conf_nia["exclusionKeywords"]
-        return next(filter(lambda v: v in message, exclusion_keywords), None)
 
     def get_neoInnerApi_baseUrl() -> str:
         conf_nia = g.config["neoInnerApi"]
