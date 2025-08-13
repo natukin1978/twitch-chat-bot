@@ -127,14 +127,14 @@ class TwitchBot(commands.Bot):
         if not text:
             return
 
-        if has_keywords_exclusion(message):
+        if has_keywords_exclusion(text):
             # 除外キーワードは取り込まない
             return
 
         json_data = create_message_json(message)
         json_data["content"] = text
         answerLevel = 0
-        if has_keywords_response(message):
+        if has_keywords_response(text):
             answerLevel = 100  # 常に回答してください
         else:
             answerLevel = g.config["fuyukaApi"]["answerLevel"]
