@@ -74,6 +74,8 @@
 | fuyukaApi.baseUrl                 | 電脳娘フユカ (AIモデレーター Fuyuka API)のエンドポイント                                |
 | fuyukaApi.answerLevel             | コメントに応答する確率                                                                  |
 | fuyukaApi.answerLength            | 応答して欲しい文字数                                                                    |
+| fuyukaApi.responseKeywords        | 発話で必ず応答して欲しいキーワード群                                                    |
+| fuyukaApi.exclusionKeywords       | 発話で無視して欲しいキーワード群                                                        |
 | fuyukaApi.skipDuplicateIdInterval | 同一IDの場合にスキップしたい時間(秒)                                                    |
 
 以下の機能はオプション
@@ -84,8 +86,6 @@
 | phantomJsCloud.apiKey         | Webスクレイピング API Key <br> https://phantomjscloud.com/    |
 | neoInnerApi.baseUrl           | ゆかコネNeoの発話の受信(WebSocket,文のみ)                     |
 | neoInnerApi.answerLevel       | 発話に応答する確率                                            |
-| neoInnerApi.responseKeywords  | 発話で必ず応答して欲しいキーワード群                          |
-| neoInnerApi.exclusionKeywords | 発話で無視して欲しいキーワード群                              |
 | oneComme.pathUsersCsv         | わんコメのリスナーリストの情報を取り込みます(CSV出力したもの) |
 
 ##### fuyukaApi.answerLength
