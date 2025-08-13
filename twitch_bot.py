@@ -13,6 +13,7 @@ import global_value as g
 from emote_helper import add_emotes, remove_emote
 from function_skipper import FunctionSkipper
 from fuyuka_helper import Fuyuka
+from keywords_helper import has_keywords_exclusion, has_keywords_response
 from one_comme_users import OneCommeUsers
 from random_helper import is_hit_by_message_json
 from time_signal_helper import calculate_next_time
@@ -126,9 +127,17 @@ class TwitchBot(commands.Bot):
         if not text:
             return
 
+        if has_keywords_exclusion(message):
+            # 除外キーワードは取り込まない
+            return
+
         json_data = create_message_json(message)
         json_data["content"] = text
-        answerLevel = g.config["fuyukaApi"]["answerLevel"]
+        answerLevel = 0
+        if has_keywords_response(message):
+            answerLevel = 100  # 常に回答してください
+        else:
+            answerLevel = g.config["fuyukaApi"]["answerLevel"]
         await self.send_message(json_data, answerLevel)
 
     @staticmethod
