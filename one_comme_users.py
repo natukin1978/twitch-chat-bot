@@ -23,6 +23,8 @@ class OneCommeUsers:
     @staticmethod
     def get_nickname(displayName: str) -> str:
         one_comme_users = OneCommeUsers.read_one_comme_users()
+        if not one_comme_users:
+            return None
 
         filtered_rows = list(filter(lambda row: row[1] == displayName, one_comme_users))
         for filtered_row in filtered_rows:
