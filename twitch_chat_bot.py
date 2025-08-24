@@ -66,7 +66,7 @@ async def main():
             logger.info(f"間隔が空いてないのでスキップします。id = {request_id}")
             return False
 
-        enable_chat_bots = {"youtube_chat_bot", "showroom_chat_bot", "openrec_chat_bot"}
+        enable_chat_bots = {"youtube_chat_bot", "showroom_chat_bot", "openrec_chat_bot", "kick_chat_bot"}
         if json_data["id"] in enable_chat_bots:
             return True
 
