@@ -118,11 +118,10 @@ async def main():
 
             is_response = has_keywords_response(message)
             answerLevel = g.config["neoInnerApi"]["answerLevel"]
-            json_data = create_message_json()
-            json_data["id"] = g.config["twitch"]["loginChannel"]
-            json_data["displayName"] = g.talker_name
-            json_data["content"] = message.strip()
-            OneCommeUsers.update_message_json(json_data)
+            id = g.config["twitch"]["loginChannel"]
+            displayName = g.talker_name
+            content = message.strip()
+            json_data = create_message_json(id, displayName, False, content)
             noisy = True
             if is_response or is_hit(answerLevel):
                 if is_response:

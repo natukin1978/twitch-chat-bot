@@ -100,11 +100,10 @@ class TwitchBot(commands.Bot):
             wait_seconds = (next_time - now).total_seconds()
             await asyncio.sleep(wait_seconds)
 
-            json_data = create_message_json()
-            json_data["id"] = g.config["twitch"]["loginChannel"]
-            json_data["displayName"] = g.talker_name
-            json_data["content"] = message.strip()
-            OneCommeUsers.update_message_json(json_data)
+            id = g.config["twitch"]["loginChannel"]
+            displayName = g.talker_name
+            content = message.strip()
+            json_data = create_message_json(id, displayName, False, content)
             answerLevel = 100
             await self.send_message(json_data, answerLevel)
 
@@ -131,8 +130,7 @@ class TwitchBot(commands.Bot):
             # 除外キーワードは取り込まない
             return
 
-        json_data = create_message_json(message)
-        json_data["content"] = text
+        json_data = create_message_json(message, text)
         answerLevel = 0
         if has_keywords_response(text):
             answerLevel = 100  # 常に回答してください
@@ -154,8 +152,7 @@ class TwitchBot(commands.Bot):
     async def cmd_ai(self, ctx: commands.Context):
         text = TwitchBot.get_cmd_value(ctx.message.content)
 
-        json_data = create_message_json(ctx.message)
-        json_data["content"] = text
+        json_data = create_message_json(ctx.message, text)
         answer_length = g.config["fuyukaApi"]["answerLength"]["aiCmd"]
         OneCommeUsers.update_additional_requests(json_data, answer_length)
         await Fuyuka.send_message_by_json_with_buf(json_data, True)
