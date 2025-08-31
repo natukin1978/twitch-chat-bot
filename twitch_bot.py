@@ -64,7 +64,7 @@ class TwitchBot(commands.Bot):
         elem_strings = elem.stripped_strings
         return [elem_string for elem_string in elem_strings]
 
-    async def send_message(self, json_data: dict[str, any], answerLevel: int):
+    async def send_message(self, json_data: dict[str, any], answer_level: int):
         if g.config["phantomJsCloud"]["apiKey"]:
             content = json_data["content"]
             url = TwitchBot.find_url(content)
@@ -82,9 +82,9 @@ class TwitchBot(commands.Bot):
                 json_data["content"] = g.WEB_SCRAPING_PROMPT + "\n" + content
                 answer_length = g.config["fuyukaApi"]["answerLength"]["webScraping"]
                 OneCommeUsers.update_additional_requests(json_data, answer_length)
-                answerLevel = 100  # 常に回答してください
+                answer_level = 100  # 常に回答してください
 
-        needs_response = is_hit_by_message_json(answerLevel, json_data)
+        needs_response = is_hit_by_message_json(answer_level, json_data)
         await Fuyuka.send_message_by_json_with_buf(json_data, needs_response)
 
     async def do_time_signal(self, interval_minutes: int, message: str):
@@ -100,13 +100,12 @@ class TwitchBot(commands.Bot):
             wait_seconds = (next_time - now).total_seconds()
             await asyncio.sleep(wait_seconds)
 
-            json_data = create_message_json()
-            json_data["id"] = g.config["twitch"]["loginChannel"]
-            json_data["displayName"] = g.talker_name
-            json_data["content"] = message.strip()
-            OneCommeUsers.update_message_json(json_data)
-            answerLevel = 100
-            await self.send_message(json_data, answerLevel)
+            id = g.config["twitch"]["loginChannel"]
+            display_name = g.talker_name
+            content = message.strip()
+            json_data = create_message_json(id, display_name, False, content)
+            answer_level = 100
+            await self.send_message(json_data, answer_level)
 
     async def event_message(self, message: twitchio.Message):
         if message.echo:
@@ -131,14 +130,13 @@ class TwitchBot(commands.Bot):
             # 除外キーワードは取り込まない
             return
 
-        json_data = create_message_json(message)
-        json_data["content"] = text
-        answerLevel = 0
+        json_data = create_message_json(message, text)
+        answer_level = 0
         if has_keywords_response(text):
-            answerLevel = 100  # 常に回答してください
+            answer_level = 100  # 常に回答してください
         else:
-            answerLevel = g.config["fuyukaApi"]["answerLevel"]
-        await self.send_message(json_data, answerLevel)
+            answer_level = g.config["fuyukaApi"]["answerLevel"]
+        await self.send_message(json_data, answer_level)
 
     @staticmethod
     def get_cmd_value(content: str) -> str:
@@ -154,8 +152,8 @@ class TwitchBot(commands.Bot):
     async def cmd_ai(self, ctx: commands.Context):
         text = TwitchBot.get_cmd_value(ctx.message.content)
 
-        json_data = create_message_json(ctx.message)
-        json_data["content"] = text
+        json_data = create_message_json(ctx.message, text)
         answer_length = g.config["fuyukaApi"]["answerLength"]["aiCmd"]
         OneCommeUsers.update_additional_requests(json_data, answer_length)
-        await Fuyuka.send_message_by_json_with_buf(json_data, True)
+        needs_response = True
+        await Fuyuka.send_message_by_json_with_buf(json_data, needs_response)

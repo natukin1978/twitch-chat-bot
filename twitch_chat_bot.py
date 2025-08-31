@@ -117,21 +117,21 @@ async def main():
                 return
 
             is_response = has_keywords_response(message)
-            answerLevel = g.config["neoInnerApi"]["answerLevel"]
-            json_data = create_message_json()
-            json_data["id"] = g.config["twitch"]["loginChannel"]
-            json_data["displayName"] = g.talker_name
-            json_data["content"] = message.strip()
-            OneCommeUsers.update_message_json(json_data)
+            answer_level = g.config["neoInnerApi"]["answerLevel"]
+            id = g.config["twitch"]["loginChannel"]
+            display_name = g.talker_name
+            content = message.strip()
+            json_data = create_message_json(id, display_name, False, content)
             noisy = True
-            if is_response or is_hit(answerLevel):
+            if is_response or is_hit(answer_level):
                 if is_response:
                     # レスポンス有効時は追加の要望を無効化
                     del json_data["additionalRequests"]
                 noisy = False
 
             json_data["noisy"] = noisy
-            await Fuyuka.send_message_by_json_with_buf(json_data, not noisy)
+            needs_response = not noisy
+            await Fuyuka.send_message_by_json_with_buf(json_data, needs_response)
 
     async def execute_command(response_text: str):
         commands = extract_commands(response_text)
