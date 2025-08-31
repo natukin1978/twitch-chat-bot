@@ -71,11 +71,16 @@ class OneCommeUsers:
     def update_additional_requests(
         json_data: dict[str, any], answer_length: int
     ) -> None:
-        json_data["additionalRequests"] = " ".join(
-            [
-                g.ADDITIONAL_REQUESTS_PROMPT.format(answerLength=answer_length),
-            ]
-        )
+        if answer_length == 0:
+            json_data["additionalRequests"] = (
+                'You understand the flow of the story. reply "OK".'
+            )
+        else:
+            json_data["additionalRequests"] = " ".join(
+                [
+                    g.ADDITIONAL_REQUESTS_PROMPT.format(answerLength=answer_length),
+                ]
+            )
 
     @staticmethod
     def update_message_json(json_data: dict[str, any]) -> None:
