@@ -124,9 +124,6 @@ async def main():
             json_data = create_message_json(id, display_name, False, content)
             noisy = True
             if is_response or is_hit(answer_level):
-                if is_response:
-                    # レスポンス有効時は追加の要望を無効化
-                    del json_data["additionalRequests"]
                 noisy = False
 
             json_data["noisy"] = noisy
