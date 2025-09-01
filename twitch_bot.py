@@ -68,6 +68,8 @@ class TwitchBot(commands.Bot):
         return [elem_string for elem_string in elem_strings]
 
     async def send_message(self, json_data: dict[str, any], answer_level: int):
+        answer_length = g.config["fuyukaApi"]["answerLength"]["default"]
+
         if g.config["phantomJsCloud"]["apiKey"]:
             content = json_data["content"]
             url = TwitchBot.find_url(content)
