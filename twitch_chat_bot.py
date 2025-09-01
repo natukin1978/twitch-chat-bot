@@ -131,6 +131,10 @@ async def main():
 
             json_data["noisy"] = noisy
             needs_response = not noisy
+            answer_length = 0
+            if needs_response:
+                answer_length = g.config["fuyukaApi"]["answerLength"]["default"]
+            OneCommeUsers.update_additional_requests(json_data, answer_length)
             await Fuyuka.send_message_by_json_with_buf(json_data, needs_response)
 
     async def execute_command(response_text: str):
