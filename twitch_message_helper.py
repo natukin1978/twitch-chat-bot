@@ -25,7 +25,9 @@ def create_message_json(
     return json_data
 
 
-def create_message_json(msg: twitchio.Message, content: str) -> dict[str, any]:
+def create_message_json_from_twitchio_message(
+    msg: twitchio.Message, content: str
+) -> dict[str, any]:
     id = msg.author.name
     display_name = msg.author.display_name
     is_first = msg.first

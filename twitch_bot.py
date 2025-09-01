@@ -17,7 +17,10 @@ from keywords_helper import has_keywords_exclusion, has_keywords_response
 from one_comme_users import OneCommeUsers
 from random_helper import is_hit_by_message_json
 from time_signal_helper import calculate_next_time
-from twitch_message_helper import create_message_json
+from twitch_message_helper import (
+    create_message_json,
+    create_message_json_from_twitchio_message,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -132,7 +135,7 @@ class TwitchBot(commands.Bot):
             # 除外キーワードは取り込まない
             return
 
-        json_data = create_message_json(message, text)
+        json_data = create_message_json_from_twitchio_message(message, text)
         answer_level = 0
         if has_keywords_response(text):
             answer_level = 100  # 常に回答してください
@@ -154,7 +157,7 @@ class TwitchBot(commands.Bot):
     async def cmd_ai(self, ctx: commands.Context):
         text = TwitchBot.get_cmd_value(ctx.message.content)
 
-        json_data = create_message_json(ctx.message, text)
+        json_data = create_message_json_from_twitchio_message(ctx.message, text)
         answer_length = g.config["fuyukaApi"]["answerLength"]["aiCmd"]
         needs_response = True
         OneCommeUsers.update_additional_requests(json_data, answer_length)
