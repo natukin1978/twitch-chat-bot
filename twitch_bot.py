@@ -17,7 +17,10 @@ from keywords_helper import has_keywords_exclusion, has_keywords_response
 from one_comme_users import OneCommeUsers
 from random_helper import is_hit_by_message_json
 from time_signal_helper import calculate_next_time
-from twitch_message_helper import create_message_json
+from twitch_message_helper import (
+    create_message_json,
+    create_message_json_from_twitchio_message,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +68,8 @@ class TwitchBot(commands.Bot):
         return [elem_string for elem_string in elem_strings]
 
     async def send_message(self, json_data: dict[str, any], answer_level: int):
+        answer_length = g.config["fuyukaApi"]["answerLength"]["default"]
+
         if g.config["phantomJsCloud"]["apiKey"]:
             content = json_data["content"]
             url = TwitchBot.find_url(content)
@@ -81,10 +86,12 @@ class TwitchBot(commands.Bot):
 
                 json_data["content"] = g.WEB_SCRAPING_PROMPT + "\n" + content
                 answer_length = g.config["fuyukaApi"]["answerLength"]["webScraping"]
-                OneCommeUsers.update_additional_requests(json_data, answer_length)
                 answer_level = 100  # 常に回答してください
 
         needs_response = is_hit_by_message_json(answer_level, json_data)
+        if not needs_response:
+            answer_length = 0
+        OneCommeUsers.update_additional_requests(json_data, answer_length)
         await Fuyuka.send_message_by_json_with_buf(json_data, needs_response)
 
     async def do_time_signal(self, interval_minutes: int, message: str):
@@ -130,7 +137,7 @@ class TwitchBot(commands.Bot):
             # 除外キーワードは取り込まない
             return
 
-        json_data = create_message_json(message, text)
+        json_data = create_message_json_from_twitchio_message(message, text)
         answer_level = 0
         if has_keywords_response(text):
             answer_level = 100  # 常に回答してください
@@ -152,8 +159,8 @@ class TwitchBot(commands.Bot):
     async def cmd_ai(self, ctx: commands.Context):
         text = TwitchBot.get_cmd_value(ctx.message.content)
 
-        json_data = create_message_json(ctx.message, text)
+        json_data = create_message_json_from_twitchio_message(ctx.message, text)
         answer_length = g.config["fuyukaApi"]["answerLength"]["aiCmd"]
-        OneCommeUsers.update_additional_requests(json_data, answer_length)
         needs_response = True
+        OneCommeUsers.update_additional_requests(json_data, answer_length)
         await Fuyuka.send_message_by_json_with_buf(json_data, needs_response)

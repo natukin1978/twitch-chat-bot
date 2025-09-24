@@ -71,15 +71,18 @@ class OneCommeUsers:
     def update_additional_requests(
         json_data: dict[str, any], answer_length: int
     ) -> None:
-        json_data["additionalRequests"] = " ".join(
-            [
-                g.ADDITIONAL_REQUESTS_PROMPT.format(answerLength=answer_length),
-            ]
-        )
+        ar = ""
+        if answer_length == 0:
+            ar = 'The content is understood and the response is "OK".'
+        else:
+            ar = " ".join(
+                [
+                    g.ADDITIONAL_REQUESTS_PROMPT.format(answerLength=answer_length),
+                ]
+            )
+        json_data["additionalRequests"] = ar
 
     @staticmethod
     def update_message_json(json_data: dict[str, any]) -> None:
         OneCommeUsers.update_is_first_on_stream(json_data)
         OneCommeUsers.update_nickname(json_data)
-        answer_length = g.config["fuyukaApi"]["answerLength"]["default"]
-        OneCommeUsers.update_additional_requests(json_data, answer_length)

@@ -66,7 +66,12 @@ async def main():
             logger.info(f"間隔が空いてないのでスキップします。id = {request_id}")
             return False
 
-        enable_chat_bots = {"youtube_chat_bot", "showroom_chat_bot", "openrec_chat_bot", "kick_chat_bot"}
+        enable_chat_bots = {
+            "youtube_chat_bot",
+            "showroom_chat_bot",
+            "openrec_chat_bot",
+            "kick_chat_bot",
+        }
         if json_data["id"] in enable_chat_bots:
             return True
 
@@ -124,13 +129,14 @@ async def main():
             json_data = create_message_json(id, display_name, False, content)
             noisy = True
             if is_response or is_hit(answer_level):
-                if is_response:
-                    # レスポンス有効時は追加の要望を無効化
-                    del json_data["additionalRequests"]
                 noisy = False
 
             json_data["noisy"] = noisy
             needs_response = not noisy
+            answer_length = 0
+            if needs_response:
+                answer_length = g.config["fuyukaApi"]["answerLength"]["default"]
+            OneCommeUsers.update_additional_requests(json_data, answer_length)
             await Fuyuka.send_message_by_json_with_buf(json_data, needs_response)
 
     async def execute_command(response_text: str):
