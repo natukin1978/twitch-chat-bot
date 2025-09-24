@@ -73,7 +73,7 @@ class OneCommeUsers:
     ) -> None:
         ar = ""
         if answer_length == 0:
-            ar = 'The content is understood and the response is "OK".'
+            ar = "The content is understood and the response is OK"
         else:
             ar = " ".join(
                 [
