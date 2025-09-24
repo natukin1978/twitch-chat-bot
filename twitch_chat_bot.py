@@ -36,7 +36,6 @@ logger = logging.getLogger(__name__)
 
 g.map_is_first_on_stream = {}
 g.set_exclude_id = read_text_set("exclude_id.txt")
-g.set_needs_response = set()
 g.talker_name = ""
 g.websocket_fuyuka = None
 g.latest_response_text = ""
@@ -60,7 +59,8 @@ async def main():
         if json_data["errorCode"]:
             return True
 
-        request_id = json_data["request"]["id"]
+        request = json_data["request"]
+        request_id = request["id"]
         if fs_response.should_skip(request_id):
             # 同じIDで頻繁にレス返すのを抑止
             logger.info(f"間隔が空いてないのでスキップします。id = {request_id}")
@@ -75,12 +75,10 @@ async def main():
         if json_data["id"] in enable_chat_bots:
             return True
 
-        request_dateTime = json_data["request"]["dateTime"]
-        if request_dateTime not in g.set_needs_response:
-            return False
+        if "needsResponse" in request and request["needsResponse"]:
+            return True
 
-        g.set_needs_response.discard(request_dateTime)
-        return True
+        return False
 
     def set_ws_fuyuka(ws) -> None:
         g.websocket_fuyuka = ws
