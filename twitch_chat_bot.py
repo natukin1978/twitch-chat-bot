@@ -7,9 +7,14 @@ import sys
 import twitchio
 
 import global_value as g
+from logging_setup import setup_app_logging
 
 g.app_name = "twitch_chat_bot"
 g.base_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+
+# ロガーの設定
+setup_app_logging(log_file_path=f"{g.app_name}.log")
+logger = logging.getLogger(__name__)
 
 from config_helper import read_config
 from extract_commands import extract_commands
@@ -28,11 +33,6 @@ g.ADDITIONAL_REQUESTS_PROMPT = read_text("prompts/additional_requests_prompt.txt
 g.WEB_SCRAPING_MESSAGE = read_text("messages/web_scraping_message.txt")
 
 g.config = read_config()
-
-# ロガーの設定
-logging.basicConfig(level=logging.INFO)
-
-logger = logging.getLogger(__name__)
 
 g.map_is_first_on_stream = {}
 g.set_exclude_id = read_text_set("exclude_id.txt")
