@@ -1,6 +1,9 @@
 import json
+import logging
 
 import global_value as g
+
+logger = logging.getLogger(__name__)
 
 
 class Fuyuka:
@@ -10,6 +13,7 @@ class Fuyuka:
         if not g.websocket_fuyuka:
             return
         json_str = json.dumps(json_data)
+        logger.debug(json_str)
         await g.websocket_fuyuka.send(json_str)
 
     @staticmethod
