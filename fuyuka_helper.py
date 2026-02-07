@@ -14,6 +14,8 @@ class Fuyuka:
             return
         json_str = json.dumps(json_data)
         logger.debug(json_str)
+        json_data.pop("isFirst", None)
+        json_data.pop("isFirstOnStream", None)
         await g.websocket_fuyuka.send(json_str)
 
     @staticmethod
