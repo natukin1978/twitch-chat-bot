@@ -76,6 +76,8 @@ async def main():
     async def recv_fuyuka_response(message: str) -> None:
         try:
             json_data = json.loads(message)
+            if "response" not in json_data:
+                return
             response_text = json_data["response"]
             if not response_text:
                 return
