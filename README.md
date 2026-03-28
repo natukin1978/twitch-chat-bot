@@ -172,12 +172,9 @@ natukiso_translator
 
 ## 作者
 
-ナツキソ
+空夢(そらゆめ)ナツキ
 
-- X(旧Twitter): [@natukin1978](https://x.com/natukin1978)
-- Mastodon: [@natukin1978](https://mstdn.jp/@natukin1978)
-- Threads: [@natukin1978](https://www.threads.net/@natukin1978)
-- GitHub: [@natukin1978](https://github.com/natukin1978)
+- プロフィールリンク: [@natukiso](https://profu.link/u/natukiso)
 - Mail: natukin1978@hotmail.com
 
 ## ライセンス
