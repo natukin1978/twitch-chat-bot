@@ -9,7 +9,7 @@
 
 #### シーケンス図
 
-![png](./images/sequence_diagram.png)
+![シーケンス図](./images/sequence_diagram.svg)
 
 ## 重要
 
