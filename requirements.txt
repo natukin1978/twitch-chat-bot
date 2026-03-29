@@ -1,4 +1,4 @@
 aiohttp==3.13.3
-twitchio==2.10
+twitchio==3.2.1
 beautifulsoup4==4.14.3
 websockets==16.0
