@@ -104,7 +104,12 @@ class TwitchBot(commands.AutoBot):
     async def event_ready(self) -> None:
         logger.info("Successfully logged in as: %s", self.bot_id)
 
-    def get_component(self):
+    async def send_message(self, message: str) -> None:
+        ctw = g.config["twitch"]
+        user = self.create_partialuser(user_id=ctw["ownerId"])
+        await user.send_message(sender=ctw["botId"], message=message)
+
+    def get_mycomponent(self) -> any:
         return self.get_component("MyComponent")
 
 
@@ -117,86 +122,136 @@ class MyComponent(commands.Component):
         # We pass bot here as an example...
         self.bot = bot
 
+    @staticmethod
+    def find_url(text: str) -> str:
+        # 正規表現パターン
+        # このパターンは、httpやhttpsプロトコルを含むURLを検索します。
+        # 特に、ドメイン名やサブドメイン、ポート番号などを考慮しています。
+        RE_URL = r"https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"
+        urls = re.findall(RE_URL, text)
+        if urls:
+            return urls[0]  # 最初のURLを返す
+        return ""
+
+    @staticmethod
+    async def web_scraping(url: str, renderType: str) -> str:
+        param = {
+            "url": url,
+            "renderType": renderType,
+        }
+        API_URL = (
+            "http://PhantomJScloud.com/api/browser/v2/"
+            + g.config["phantomJsCloud"]["apiKey"]
+            + "/"
+        )
+        async with aiohttp.ClientSession() as session:
+            async with session.post(API_URL, data=json.dumps(param)) as response:
+                return await response.text()
+
+    @staticmethod
+    def get_all_contents(html_content: str, target_selector: str) -> list:
+        soup = BeautifulSoup(html_content, "html.parser")
+        elem = soup.select_one(target_selector)
+        elem_strings = elem.stripped_strings
+        return [elem_string for elem_string in elem_strings]
+
+    async def send_message(self, json_data: dict[str, any], answer_level: int):
+        answer_length = g.config["fuyukaApi"]["answerLength"]["default"]
+
+        if g.config["phantomJsCloud"]["apiKey"]:
+            content = json_data["content"]
+            url = self.find_url(content)
+            if url:
+                logger.info("web_scraping: " + url)
+                if "www.twitch.tv" in url:
+                    content = await self.web_scraping(url, "html")
+                    contents_list = self.get_all_contents(
+                        content, "[class*='channel-info-content']"
+                    )
+                    content = "\n".join(contents_list)
+                else:
+                    content = await TwitchBot.web_scraping(url, "plainText")
+
+                json_data["content"] = g.WEB_SCRAPING_PROMPT + "\n" + content
+                answer_length = g.config["fuyukaApi"]["answerLength"]["webScraping"]
+                answer_level = 100  # 常に回答してください
+
+        needs_response = is_hit_by_message_json(answer_level, json_data)
+        if not needs_response:
+            answer_length = 0
+        OneCommeUsers.update_additional_requests(json_data, answer_length)
+        await Fuyuka.send_message_by_json_with_buf(json_data, needs_response)
+
+    async def do_time_signal(self, interval_minutes: int, message: str):
+        fs_time_signal = FunctionSkipper(45)
+        while True:
+            if fs_time_signal.should_skip(""):
+                # 念のため、頻繁に処理されないようにする
+                await asyncio.sleep(1)
+                continue
+
+            now = datetime.datetime.now()
+            next_time = calculate_next_time(now, interval_minutes)
+            wait_seconds = (next_time - now).total_seconds()
+            await asyncio.sleep(wait_seconds)
+
+            id = g.config["twitch"]["loginChannel"]
+            display_name = g.talker_name
+            content = message.strip()
+            json_data = create_message_json(id, display_name, False, content)
+            answer_level = 100
+            await self.send_message(json_data, answer_level)
+
     # An example of listening to an event
     # We use a listener in our Component to display the messages received.
     @commands.Component.listener()
     async def event_message(self, payload: twitchio.ChatMessage) -> None:
-        print(f"[{payload.broadcaster.name}] - {payload.chatter.name}: {payload.text}")
+        if payload.chatter.id == self.bot.bot_id:
+            return
+
+        id = payload.chatter.name
+        if id in g.set_exclude_id:
+            # 無視するID
+            return
+
+        if payload.text.startswith("!"):
+            #await self.handle_commands(payload)
+            return
+
+        # fragmentsを使ってテキスト部分だけを繋ぎ合わせる
+        # fragment.type が "text" のものだけを取り出す
+        text = "".join(
+            fragment.text for fragment in payload.fragments if fragment.type == "text"
+        )
+
+        # 前後の余計な空白を整える
+        text = text.strip()
+        if not text:
+            return
+
+        if has_keywords_exclusion(text):
+            # 除外キーワードは取り込まない
+            return
+
+        json_data = create_message_json_from_twitchio_message(payload, text)
+        answer_level = 0
+        if has_keywords_response(text):
+            answer_level = 100  # 常に回答してください
+        else:
+            answer_level = g.config["fuyukaApi"]["answerLevel"]
+        await self.send_message(json_data, answer_level)
 
     @commands.command()
-    async def hi(self, ctx: commands.Context) -> None:
-        """Command that replies to the invoker with Hi <name>!
-
-        !hi
-        """
-        await ctx.reply(f"Hi {ctx.chatter}!")
-
-    @commands.command()
-    async def say(self, ctx: commands.Context, *, message: str) -> None:
+    async def ai(self, ctx: commands.Context, *, message: str) -> None:
         """Command which repeats what the invoker sends.
 
-        !say <message>
+        !ai <message>
         """
-        await ctx.send(message)
-
-    @commands.command()
-    async def add(self, ctx: commands.Context, left: int, right: int) -> None:
-        """Command which adds to integers together.
-
-        !add <number> <number>
-        """
-        await ctx.reply(f"{left} + {right} = {left + right}")
-
-    @commands.command()
-    async def choice(self, ctx: commands.Context, *choices: str) -> None:
-        """Command which takes in an arbitrary amount of choices and randomly chooses one.
-
-        !choice <choice_1> <choice_2> <choice_3> ...
-        """
-        await ctx.reply(
-            f"You provided {len(choices)} choices, I choose: {random.choice(choices)}"
-        )
-
-    @commands.command(aliases=["thanks", "thank"])
-    async def give(
-        self,
-        ctx: commands.Context,
-        user: twitchio.User,
-        amount: int,
-        *,
-        message: str | None = None,
-    ) -> None:
-        """A more advanced example of a command which has makes use of the powerful argument parsing, argument converters and
-        aliases.
-
-        The first argument will be attempted to be converted to a User.
-        The second argument will be converted to an integer if possible.
-        The third argument is optional and will consume the reast of the message.
-
-        !give <@user|user_name> <number> [message]
-        !thank <@user|user_name> <number> [message]
-        !thanks <@user|user_name> <number> [message]
-        """
-        msg = f"with message: {message}" if message else ""
-        await ctx.send(
-            f"{ctx.chatter.mention} gave {amount} thanks to {user.mention} {msg}"
-        )
-
-    @commands.group(invoke_fallback=True)
-    async def socials(self, ctx: commands.Context) -> None:
-        """Group command for our social links.
-
-        !socials
-        """
-        await ctx.send("discord.gg/..., youtube.com/..., twitch.tv/...")
-
-    @socials.command(name="discord")
-    async def socials_discord(self, ctx: commands.Context) -> None:
-        """Sub command of socials that sends only our discord invite.
-
-        !socials discord
-        """
-        await ctx.send("discord.gg/...")
+        json_data = create_message_json_from_twitchio_message(ctx.message, message)
+        answer_length = g.config["fuyukaApi"]["answerLength"]["aiCmd"]
+        needs_response = True
+        OneCommeUsers.update_additional_requests(json_data, answer_length)
+        await Fuyuka.send_message_by_json_with_buf(json_data, needs_response)
 
 
 async def setup_database(
