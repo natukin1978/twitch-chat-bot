@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 
+import asqlite
 import twitchio
 
 import global_value as g
@@ -25,7 +26,7 @@ from keywords_helper import has_keywords_exclusion, has_keywords_response
 from one_comme_users import OneCommeUsers
 from random_helper import is_hit
 from text_helper import read_text, read_text_set
-from twitch_bot import TwitchBot
+from twitch_bot import TwitchBot, setup_database
 from twitch_message_helper import create_message_json
 from websocket_helper import websocket_listen_forever
 
@@ -92,10 +93,11 @@ async def main():
 
             if not is_needs_response(json_data):
                 return
-            channel = bot.get_channel(g.config["twitch"]["loginChannel"])
-            await channel.send(response_text)
+            await bot.send_message(response_text)
         except json.JSONDecodeError:
-            pass
+            logger.error(f"Jsonデコードに失敗しました: {e}")
+        except Exception as e:
+            logger.error(f"送信に失敗しました: {e}")
 
     async def recv_message(message: str) -> None:
         try:
@@ -113,7 +115,7 @@ async def main():
 
             is_response = has_keywords_response(message)
             answer_level = g.config["neoInnerApi"]["answerLevel"]
-            id = g.config["twitch"]["loginChannel"]
+            id = None
             display_name = g.talker_name
             content = message.strip()
             json_data = create_message_json(id, display_name, False, content)
@@ -140,7 +142,7 @@ async def main():
 
         cmd = commands[0]
         target_name = commands[1]
-        mode_user, target_user = await bot.fetch_users([bot.nick, target_name])
+        mode_user, target_user = await bot.fetch_users(ids=[bot.nick], logins=[target_name])
 
         if not mode_user or not target_user:
             return
@@ -176,8 +178,16 @@ async def main():
 
     fs_response = FunctionSkipper(g.config["fuyukaApi"]["skipDuplicateIdInterval"])
 
-    bot = TwitchBot()
-    await bot.connect()
+    twitchio.utils.setup_logging(level=logging.INFO)
+    bot = None
+    async with asqlite.create_pool("tokens.db") as tdb:
+        tokens, subs = await setup_database(tdb)
+
+        bot = TwitchBot(token_database=tdb, subs=subs)
+        for pair in tokens:
+            await bot.add_token(*pair)
+
+        await bot.login(load_tokens=False)
 
     fuyukaApi_baseUrl = get_fuyukaApi_baseUrl()
     if fuyukaApi_baseUrl:
@@ -196,7 +206,7 @@ async def main():
         time_signal_message = g.config["timeSignal"]["message"]
         if time_signal_message:
             asyncio.create_task(
-                bot.do_time_signal(time_signal_interval_minutes, time_signal_message)
+                bot.get_mycomponent().do_time_signal(time_signal_interval_minutes, time_signal_message)
             )
 
     try:
