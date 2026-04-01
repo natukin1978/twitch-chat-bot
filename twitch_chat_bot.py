@@ -200,17 +200,6 @@ async def main():
 
     fs_response = FunctionSkipper(g.config["fuyukaApi"]["skipDuplicateIdInterval"])
 
-    twitchio.utils.setup_logging(level=logging.INFO)
-    bot = None
-    async with asqlite.create_pool("tokens.db") as tdb:
-        tokens, subs = await setup_database(tdb)
-
-        bot = TwitchBot(token_database=tdb, subs=subs)
-        for pair in tokens:
-            await bot.add_token(*pair)
-
-        await bot.login(load_tokens=False)
-
     fuyukaApi_baseUrl = get_fuyukaApi_baseUrl()
     if fuyukaApi_baseUrl:
         websocket_uri = f"{fuyukaApi_baseUrl}/chat/{g.app_name}"
@@ -231,13 +220,21 @@ async def main():
                 do_time_signal(time_signal_interval_minutes, time_signal_message)
             )
 
+    twitchio.utils.setup_logging(level=logging.INFO)
+    bot = None
+    async with asqlite.create_pool("tokens.db") as tdb:
+        tokens, subs = await setup_database(tdb)
+
+        bot = TwitchBot(token_database=tdb, subs=subs)
+        for pair in tokens:
+            await bot.add_token(*pair)
+        await bot.start(load_tokens=False)
+
+
+if __name__ == "__main__":
     try:
-        await asyncio.Future()
+        asyncio.run(main())
     except KeyboardInterrupt:
         pass
     finally:
         pass
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
