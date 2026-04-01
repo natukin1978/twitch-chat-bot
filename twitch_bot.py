@@ -109,6 +109,15 @@ class TwitchBot(commands.AutoBot):
         owner_user = self.create_partialuser(user_id=ctw["ownerId"])
         await owner_user.send_message(sender=ctw["botId"], message=message)
 
+    async def send_shoutout(self, target_name: str) -> None:
+        ctw = g.config["twitch"]
+        owner_user = self.create_partialuser(user_id=ctw["ownerId"])
+        target_user = await self.fetch_user(login=target_name)
+        await owner_user.send_shoutout(
+            moderator=ctw["botId"],
+            to_broadcaster=target_user,
+        )
+
     async def ban_user(self, target_name: str) -> twitchio.Ban:
         ctw = g.config["twitch"]
         owner_user = self.create_partialuser(user_id=ctw["ownerId"])
