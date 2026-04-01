@@ -106,11 +106,19 @@ class TwitchBot(commands.AutoBot):
 
     async def send_message(self, message: str) -> None:
         ctw = g.config["twitch"]
-        user = self.create_partialuser(user_id=ctw["ownerId"])
-        await user.send_message(sender=ctw["botId"], message=message)
+        owner_user = self.create_partialuser(user_id=ctw["ownerId"])
+        await owner_user.send_message(sender=ctw["botId"], message=message)
 
-    def get_mycomponent(self) -> any:
-        return self.get_component("MyComponent")
+    async def timeout_user(self, target_name: str, duration: int) -> None:
+        ctw = g.config["twitch"]
+        owner_user = self.create_partialuser(user_id=ctw["ownerId"])
+        target_user = await self.fetch_user(login=target_name)
+        await owner_user.timeout_user(
+            moderator=ctw["botId"],
+            user=target_user,
+            duration=duration,
+            reason="disrupted the broadcast.",
+        )
 
 
 class MyComponent(commands.Component):
