@@ -142,7 +142,9 @@ async def main():
 
         cmd = commands[0]
         target_name = commands[1]
-        mode_user, target_user = await bot.fetch_users(ids=[bot.nick], logins=[target_name])
+        mode_user, target_user = await bot.fetch_users(
+            ids=[bot.nick], logins=[target_name]
+        )
 
         if not mode_user or not target_user:
             return
@@ -170,6 +172,26 @@ async def main():
             )
         if cmd_result:
             logger.info(cmd_result)
+
+    async def do_time_signal(interval_minutes: int, message: str):
+        fs_time_signal = FunctionSkipper(45)
+        while True:
+            if fs_time_signal.should_skip(""):
+                # 念のため、頻繁に処理されないようにする
+                await asyncio.sleep(1)
+                continue
+
+            now = datetime.datetime.now()
+            next_time = calculate_next_time(now, interval_minutes)
+            wait_seconds = (next_time - now).total_seconds()
+            await asyncio.sleep(wait_seconds)
+
+            id = g.config["twitch"]["loginChannel"]
+            display_name = g.talker_name
+            content = message.strip()
+            json_data = create_message_json(id, display_name, False, content)
+            answer_level = 100
+            await bot.send_message(json_data, answer_level)
 
     print("前回の続きですか？(y/n) ", end="")
     is_continue = input() == "y"
@@ -206,7 +228,7 @@ async def main():
         time_signal_message = g.config["timeSignal"]["message"]
         if time_signal_message:
             asyncio.create_task(
-                bot.get_mycomponent().do_time_signal(time_signal_interval_minutes, time_signal_message)
+                do_time_signal(time_signal_interval_minutes, time_signal_message)
             )
 
     try:

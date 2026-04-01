@@ -5,8 +5,8 @@ import logging
 import re
 from typing import TYPE_CHECKING
 
-import asqlite
 import aiohttp
+import asqlite
 import twitchio
 from bs4 import BeautifulSoup
 from twitchio import eventsub
@@ -182,26 +182,6 @@ class MyComponent(commands.Component):
         OneCommeUsers.update_additional_requests(json_data, answer_length)
         await Fuyuka.send_message_by_json_with_buf(json_data, needs_response)
 
-    async def do_time_signal(self, interval_minutes: int, message: str):
-        fs_time_signal = FunctionSkipper(45)
-        while True:
-            if fs_time_signal.should_skip(""):
-                # 念のため、頻繁に処理されないようにする
-                await asyncio.sleep(1)
-                continue
-
-            now = datetime.datetime.now()
-            next_time = calculate_next_time(now, interval_minutes)
-            wait_seconds = (next_time - now).total_seconds()
-            await asyncio.sleep(wait_seconds)
-
-            id = g.config["twitch"]["loginChannel"]
-            display_name = g.talker_name
-            content = message.strip()
-            json_data = create_message_json(id, display_name, False, content)
-            answer_level = 100
-            await self.send_message(json_data, answer_level)
-
     # An example of listening to an event
     # We use a listener in our Component to display the messages received.
     @commands.Component.listener()
@@ -215,7 +195,7 @@ class MyComponent(commands.Component):
             return
 
         if payload.text.startswith("!"):
-            #await self.handle_commands(payload)
+            # await self.handle_commands(payload)
             return
 
         # fragmentsを使ってテキスト部分だけを繋ぎ合わせる
