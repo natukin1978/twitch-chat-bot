@@ -1,5 +1,4 @@
 import asyncio
-import datetime
 import json
 import logging
 import re
@@ -16,16 +15,11 @@ if TYPE_CHECKING:
     import sqlite3
 
 import global_value as g
-from function_skipper import FunctionSkipper
 from fuyuka_helper import Fuyuka
 from keywords_helper import has_keywords_exclusion, has_keywords_response
 from one_comme_users import OneCommeUsers
 from random_helper import is_hit_by_message_json
-from time_signal_helper import calculate_next_time
-from twitch_message_helper import (
-    create_message_json,
-    create_message_json_from_twitchio_message,
-)
+from twitch_message_helper import create_message_json_from_twitchio_message
 
 logger = logging.getLogger(__name__)
 

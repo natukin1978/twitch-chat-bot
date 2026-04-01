@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import json
 import logging
 import os
@@ -26,6 +27,7 @@ from keywords_helper import has_keywords_exclusion, has_keywords_response
 from one_comme_users import OneCommeUsers
 from random_helper import is_hit
 from text_helper import read_text, read_text_set
+from time_signal_helper import calculate_next_time
 from twitch_bot import TwitchBot, setup_database
 from twitch_message_helper import create_message_json
 from websocket_helper import websocket_listen_forever
