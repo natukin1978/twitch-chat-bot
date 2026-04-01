@@ -25,8 +25,10 @@ def create_message_json(
     return json_data
 
 
-def create_message_json_from_twitchio_message(payload: twitchio.ChatMessage, content: str) -> dict[str, any]:
+def create_message_json_from_twitchio_message(
+    payload: twitchio.ChatMessage, content: str
+) -> dict[str, any]:
     id = payload.chatter.name
     display_name = payload.chatter.display_name
-    is_first = False 
+    is_first = False
     return create_message_json(id, display_name, is_first, content)
