@@ -109,11 +109,21 @@ class TwitchBot(commands.AutoBot):
         owner_user = self.create_partialuser(user_id=ctw["ownerId"])
         await owner_user.send_message(sender=ctw["botId"], message=message)
 
-    async def timeout_user(self, target_name: str, duration: int) -> None:
+    async def ban_user(self, target_name: str) -> twitchio.Ban:
         ctw = g.config["twitch"]
         owner_user = self.create_partialuser(user_id=ctw["ownerId"])
         target_user = await self.fetch_user(login=target_name)
-        await owner_user.timeout_user(
+        return await owner_user.ban_user(
+            moderator=ctw["botId"],
+            user=target_user,
+            reason="disrupted the broadcast.",
+        )
+
+    async def timeout_user(self, target_name: str, duration: int) -> twitchio.Timeout:
+        ctw = g.config["twitch"]
+        owner_user = self.create_partialuser(user_id=ctw["ownerId"])
+        target_user = await self.fetch_user(login=target_name)
+        return await owner_user.timeout_user(
             moderator=ctw["botId"],
             user=target_user,
             duration=duration,
