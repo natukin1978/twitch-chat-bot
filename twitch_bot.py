@@ -16,7 +16,6 @@ if TYPE_CHECKING:
     import sqlite3
 
 import global_value as g
-from emote_helper import add_emotes, remove_emote
 from function_skipper import FunctionSkipper
 from fuyuka_helper import Fuyuka
 from keywords_helper import has_keywords_exclusion, has_keywords_response
