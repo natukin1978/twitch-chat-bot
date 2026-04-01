@@ -142,34 +142,19 @@ async def main():
 
         cmd = commands[0]
         target_name = commands[1]
-        mode_user, target_user = await bot.fetch_users(
-            ids=[bot.nick], logins=[target_name]
-        )
-
-        if not mode_user or not target_user:
-            return
 
         # モデレーターコマンド
         cmd_result = None
-        if cmd == "ban":
-            cmd_result = await mode_user.ban_user(
-                g.config["twitch"]["accessToken"],
-                mode_user.id,
-                target_user.id,
-                "disrupted the broadcast.",
-            )
+        if cmd == "shoutout":
+            await bot.send_shoutout(target_name)
+        elif cmd == "ban":
+            cmd_result = await bot.ban_user(target_name)
         elif cmd == "timeout":
             if len_cmd < 3:
                 duration = 600
             else:
                 duration = int(commands[2])
-            cmd_result = await mode_user.timeout_user(
-                g.config["twitch"]["accessToken"],
-                mode_user.id,
-                target_user.id,
-                duration,
-                "disrupted the broadcast.",
-            )
+            cmd_result = await bot.timeout_user(target_name, duration)
         if cmd_result:
             logger.info(cmd_result)
 
