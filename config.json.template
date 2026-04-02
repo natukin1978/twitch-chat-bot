@@ -1,10 +1,16 @@
 {
   "logLevel": "WARNING",
   "twitch": {
-    "clientId": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "clientSecret": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-    "botId": "",
-    "ownerId": ""
+    "clientId": "",
+    "clientSecret": "",
+    "bot": {
+      "name": "",
+      "id": ""
+    },
+    "owner": {
+      "name": "",
+      "id": ""
+    }
   },
   "fuyukaApi": {
     "baseUrl": "ws://127.0.0.1:38321",

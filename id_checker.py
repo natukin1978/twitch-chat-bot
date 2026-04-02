@@ -3,6 +3,7 @@ import json
 import os
 import sys
 
+import questionary
 import twitchio
 
 import global_value as g
@@ -13,24 +14,35 @@ g.base_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
 g.config = read_config()
 
 c_twitch = g.config["twitch"]
-if not c_twitch["clientId"] or not c_twitch["clientSecret"]:
-    print("失敗: config.json に clientId, clientSecret を書き込んで下さい。")
+
+client_id = questionary.text("クライアントID:", default=c_twitch["clientId"]).ask()
+if not client_id:
+    print("中断します。")
     sys.exit(1)
 
-print("Botユーザー名:", end="")
-bot_name = input()
+client_secret = questionary.text(
+    "シークレットキー:", default=c_twitch["clientSecret"]
+).ask()
+if not client_secret:
+    print("中断します。")
+    sys.exit(1)
 
-print("監視チャンネル名:", end="")
-owner_name = input()
+bot_name = questionary.text("Botユーザー名:", default=c_twitch["bot"]["name"]).ask()
+if not bot_name:
+    print("中断します。")
+    sys.exit(1)
 
-if not bot_name or not owner_name:
-    print("失敗: 未入力の項目がありました。")
+owner_name = questionary.text(
+    "監視チャンネル名:", default=c_twitch["owner"]["name"]
+).ask()
+if not owner_name:
+    print("中断します。")
     sys.exit(1)
 
 
 async def main() -> None:
     async with twitchio.Client(
-        client_id=c_twitch["clientId"], client_secret=c_twitch["clientSecret"]
+        client_id=client_id, client_secret=client_secret
     ) as client:
         await client.login()
 
@@ -42,8 +54,12 @@ async def main() -> None:
             print(f"失敗: ユーザーの取得に失敗しました。 {e}")
             sys.exit(1)
 
-        c_twitch["botId"] = bot_user.id
-        c_twitch["ownerId"] = owner_user.id
+        c_twitch["clientId"] = client_id
+        c_twitch["clientSecret"] = client_secret
+        c_twitch["bot"]["name"] = bot_name
+        c_twitch["bot"]["id"] = bot_user.id
+        c_twitch["owner"]["name"] = owner_name
+        c_twitch["owner"]["id"] = owner_user.id
 
         try:
             write_config(data=g.config)
