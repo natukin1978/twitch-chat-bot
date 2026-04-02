@@ -28,7 +28,7 @@ from one_comme_users import OneCommeUsers
 from random_helper import is_hit
 from text_helper import read_text, read_text_set
 from time_signal_helper import calculate_next_time
-from twitch_bot import TwitchBot, setup_database
+from twitch_bot import TwitchBot, send_message_add_web_scraping, setup_database
 from twitch_message_helper import create_message_json
 from websocket_helper import websocket_listen_forever
 
@@ -179,7 +179,7 @@ async def main():
             content = message.strip()
             json_data = create_message_json(id, display_name, False, content)
             answer_level = 100
-            await bot.send_message(json_data, answer_level)
+            await send_message_add_web_scraping(json_data, answer_level)
 
     print("前回の続きですか？(y/n) ", end="")
     is_continue = input() == "y"

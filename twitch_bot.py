@@ -142,66 +142,6 @@ class MyComponent(commands.Component):
         # We pass bot here as an example...
         self.bot = bot
 
-    @staticmethod
-    def find_url(text: str) -> str:
-        # 正規表現パターン
-        # このパターンは、httpやhttpsプロトコルを含むURLを検索します。
-        # 特に、ドメイン名やサブドメイン、ポート番号などを考慮しています。
-        RE_URL = r"https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"
-        urls = re.findall(RE_URL, text)
-        if urls:
-            return urls[0]  # 最初のURLを返す
-        return ""
-
-    @staticmethod
-    async def web_scraping(url: str, renderType: str) -> str:
-        param = {
-            "url": url,
-            "renderType": renderType,
-        }
-        API_URL = (
-            "http://PhantomJScloud.com/api/browser/v2/"
-            + g.config["phantomJsCloud"]["apiKey"]
-            + "/"
-        )
-        async with aiohttp.ClientSession() as session:
-            async with session.post(API_URL, data=json.dumps(param)) as response:
-                return await response.text()
-
-    @staticmethod
-    def get_all_contents(html_content: str, target_selector: str) -> list:
-        soup = BeautifulSoup(html_content, "html.parser")
-        elem = soup.select_one(target_selector)
-        elem_strings = elem.stripped_strings
-        return [elem_string for elem_string in elem_strings]
-
-    async def send_message(self, json_data: dict[str, any], answer_level: int):
-        answer_length = g.config["fuyukaApi"]["answerLength"]["default"]
-
-        if g.config["phantomJsCloud"]["apiKey"]:
-            content = json_data["content"]
-            url = self.find_url(content)
-            if url:
-                logger.info("web_scraping: " + url)
-                if "www.twitch.tv" in url:
-                    content = await self.web_scraping(url, "html")
-                    contents_list = self.get_all_contents(
-                        content, "[class*='channel-info-content']"
-                    )
-                    content = "\n".join(contents_list)
-                else:
-                    content = await TwitchBot.web_scraping(url, "plainText")
-
-                json_data["content"] = g.WEB_SCRAPING_PROMPT + "\n" + content
-                answer_length = g.config["fuyukaApi"]["answerLength"]["webScraping"]
-                answer_level = 100  # 常に回答してください
-
-        needs_response = is_hit_by_message_json(answer_level, json_data)
-        if not needs_response:
-            answer_length = 0
-        OneCommeUsers.update_additional_requests(json_data, answer_length)
-        await Fuyuka.send_message_by_json_with_buf(json_data, needs_response)
-
     # An example of listening to an event
     # We use a listener in our Component to display the messages received.
     @commands.Component.listener()
@@ -239,7 +179,7 @@ class MyComponent(commands.Component):
             answer_level = 100  # 常に回答してください
         else:
             answer_level = g.config["fuyukaApi"]["answerLevel"]
-        await self.send_message(json_data, answer_level)
+        await send_message_add_web_scraping(json_data, answer_level)
 
     @commands.command()
     async def ai(self, ctx: commands.Context, *, message: str) -> None:
@@ -289,3 +229,64 @@ async def setup_database(
             )
 
     return tokens, subs
+
+
+def find_url(text: str) -> str:
+    # 正規表現パターン
+    # このパターンは、httpやhttpsプロトコルを含むURLを検索します。
+    # 特に、ドメイン名やサブドメイン、ポート番号などを考慮しています。
+    RE_URL = r"https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"
+    urls = re.findall(RE_URL, text)
+    if urls:
+        return urls[0]  # 最初のURLを返す
+    return ""
+
+
+async def web_scraping(url: str, renderType: str) -> str:
+    param = {
+        "url": url,
+        "renderType": renderType,
+    }
+    API_URL = (
+        "http://PhantomJScloud.com/api/browser/v2/"
+        + g.config["phantomJsCloud"]["apiKey"]
+        + "/"
+    )
+    async with aiohttp.ClientSession() as session:
+        async with session.post(API_URL, data=json.dumps(param)) as response:
+            return await response.text()
+
+
+def get_all_contents(html_content: str, target_selector: str) -> list:
+    soup = BeautifulSoup(html_content, "html.parser")
+    elem = soup.select_one(target_selector)
+    elem_strings = elem.stripped_strings
+    return [elem_string for elem_string in elem_strings]
+
+
+async def send_message_add_web_scraping(json_data: dict[str, any], answer_level: int):
+    answer_length = g.config["fuyukaApi"]["answerLength"]["default"]
+
+    if g.config["phantomJsCloud"]["apiKey"]:
+        content = json_data["content"]
+        url = find_url(content)
+        if url:
+            logger.info("web_scraping: " + url)
+            if "www.twitch.tv" in url:
+                content = await web_scraping(url, "html")
+                contents_list = get_all_contents(
+                    content, "[class*='channel-info-content']"
+                )
+                content = "\n".join(contents_list)
+            else:
+                content = await web_scraping(url, "plainText")
+
+            json_data["content"] = g.WEB_SCRAPING_PROMPT + "\n" + content
+            answer_length = g.config["fuyukaApi"]["answerLength"]["webScraping"]
+            answer_level = 100  # 常に回答してください
+
+    needs_response = is_hit_by_message_json(answer_level, json_data)
+    if not needs_response:
+        answer_length = 0
+    OneCommeUsers.update_additional_requests(json_data, answer_length)
+    await Fuyuka.send_message_by_json_with_buf(json_data, needs_response)
