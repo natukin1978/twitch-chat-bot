@@ -34,8 +34,8 @@ class TwitchBot(commands.AutoBot):
         super().__init__(
             client_id=ctw["clientId"],
             client_secret=ctw["clientSecret"],
-            bot_id=ctw["botId"],
-            owner_id=ctw["ownerId"],
+            bot_id=ctw["bot"]["id"],
+            owner_id=ctw["owner"]["id"],
             prefix="!",
             subscriptions=subs,
             force_subscribe=True,
@@ -99,34 +99,34 @@ class TwitchBot(commands.AutoBot):
 
     async def send_message(self, message: str) -> None:
         ctw = g.config["twitch"]
-        owner_user = self.create_partialuser(user_id=ctw["ownerId"])
-        await owner_user.send_message(sender=ctw["botId"], message=message)
+        owner_user = self.create_partialuser(user_id=ctw["owner"]["id"])
+        await owner_user.send_message(sender=ctw["bot"]["id"], message=message)
 
     async def send_shoutout(self, target_name: str) -> None:
         ctw = g.config["twitch"]
-        owner_user = self.create_partialuser(user_id=ctw["ownerId"])
+        owner_user = self.create_partialuser(user_id=ctw["owner"]["id"])
         target_user = await self.fetch_user(login=target_name)
         await owner_user.send_shoutout(
-            moderator=ctw["botId"],
+            moderator=ctw["bot"]["id"],
             to_broadcaster=target_user,
         )
 
     async def ban_user(self, target_name: str) -> twitchio.Ban:
         ctw = g.config["twitch"]
-        owner_user = self.create_partialuser(user_id=ctw["ownerId"])
+        owner_user = self.create_partialuser(user_id=ctw["owner"]["id"])
         target_user = await self.fetch_user(login=target_name)
         return await owner_user.ban_user(
-            moderator=ctw["botId"],
+            moderator=ctw["bot"]["id"],
             user=target_user,
             reason="disrupted the broadcast.",
         )
 
     async def timeout_user(self, target_name: str, duration: int) -> twitchio.Timeout:
         ctw = g.config["twitch"]
-        owner_user = self.create_partialuser(user_id=ctw["ownerId"])
+        owner_user = self.create_partialuser(user_id=ctw["owner"]["id"])
         target_user = await self.fetch_user(login=target_name)
         return await owner_user.timeout_user(
-            moderator=ctw["botId"],
+            moderator=ctw["bot"]["id"],
             user=target_user,
             duration=duration,
             reason="disrupted the broadcast.",
@@ -272,7 +272,7 @@ async def setup_database(
         subs: list[eventsub.SubscriptionPayload] = []
 
         ctw = g.config["twitch"]
-        bot_id = ctw["botId"]
+        bot_id = ctw["bot"]["id"]
 
         for row in rows:
             tokens.append((row["token"], row["refresh"]))
