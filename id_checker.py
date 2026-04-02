@@ -1,5 +1,4 @@
 import asyncio
-import json
 import os
 import sys
 
@@ -65,7 +64,7 @@ async def main() -> None:
             write_config(data=g.config)
 
             # 成功時の処理
-            print(f"成功: ファイル config.json に書き込みました。")
+            print("成功: ファイル config.json に書き込みました。")
 
         except TypeError as e:
             # データにJSON変換できない型（オブジェクトなど）が含まれている場合

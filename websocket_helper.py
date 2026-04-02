@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import sys
 from typing import Awaitable, Callable
 
 import websockets
@@ -42,7 +41,7 @@ async def websocket_listen_forever(
                             pong = await ws.ping()
                             await asyncio.wait_for(pong, timeout=ping_timeout)
                             continue
-                        except:
+                        except Exception:
                             await asyncio.sleep(sleep_time)
                             break
         except Exception as e:

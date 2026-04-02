@@ -98,7 +98,7 @@ async def main():
             if not is_needs_response(json_data):
                 return
             await bot.send_message(response_text)
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
             logger.error(f"Jsonデコードに失敗しました: {e}")
         except Exception as e:
             logger.error(f"送信に失敗しました: {e}")
