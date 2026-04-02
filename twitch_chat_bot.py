@@ -1,5 +1,4 @@
 import asyncio
-import datetime
 import json
 import logging
 import os
@@ -27,8 +26,11 @@ from keywords_helper import has_keywords_exclusion, has_keywords_response
 from one_comme_users import OneCommeUsers
 from random_helper import is_hit
 from text_helper import read_text, read_text_set
-from time_signal_helper import calculate_next_time
-from twitch_bot import TwitchBot, send_message_add_web_scraping, setup_database
+from twitch_bot import (
+    TwitchBot,
+    do_time_signal,
+    setup_database,
+)
 from twitch_message_helper import create_message_json
 from websocket_helper import websocket_listen_forever
 
@@ -160,26 +162,6 @@ async def main():
             cmd_result = await bot.timeout_user(target_name, duration)
         if cmd_result:
             logger.info(cmd_result)
-
-    async def do_time_signal(interval_minutes: int, message: str):
-        fs_time_signal = FunctionSkipper(45)
-        while True:
-            if fs_time_signal.should_skip(""):
-                # 念のため、頻繁に処理されないようにする
-                await asyncio.sleep(1)
-                continue
-
-            now = datetime.datetime.now()
-            next_time = calculate_next_time(now, interval_minutes)
-            wait_seconds = (next_time - now).total_seconds()
-            await asyncio.sleep(wait_seconds)
-
-            id = g.config["twitch"]["owner"]["name"]
-            display_name = g.talker_name
-            content = message.strip()
-            json_data = create_message_json(id, display_name, False, content)
-            answer_level = 100
-            await send_message_add_web_scraping(json_data, answer_level)
 
     print("前回の続きですか？(y/n) ", end="")
     is_continue = input() == "y"

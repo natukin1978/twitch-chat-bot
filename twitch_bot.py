@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import json
 import logging
 import re
@@ -15,11 +16,16 @@ if TYPE_CHECKING:
     import sqlite3
 
 import global_value as g
+from function_skipper import FunctionSkipper
 from fuyuka_helper import Fuyuka
 from keywords_helper import has_keywords_exclusion, has_keywords_response
 from one_comme_users import OneCommeUsers
 from random_helper import is_hit_by_message_json
-from twitch_message_helper import create_message_json_from_twitchio_message
+from time_signal_helper import calculate_next_time
+from twitch_message_helper import (
+    create_message_json,
+    create_message_json_from_twitchio_message,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -290,3 +296,24 @@ async def send_message_add_web_scraping(json_data: dict[str, any], answer_level:
         answer_length = 0
     OneCommeUsers.update_additional_requests(json_data, answer_length)
     await Fuyuka.send_message_by_json_with_buf(json_data, needs_response)
+
+
+async def do_time_signal(interval_minutes: int, message: str):
+    fs_time_signal = FunctionSkipper(45)
+    while True:
+        if fs_time_signal.should_skip(""):
+            # 念のため、頻繁に処理されないようにする
+            await asyncio.sleep(1)
+            continue
+
+        now = datetime.datetime.now()
+        next_time = calculate_next_time(now, interval_minutes)
+        wait_seconds = (next_time - now).total_seconds()
+        await asyncio.sleep(wait_seconds)
+
+        id = g.config["twitch"]["owner"]["name"]
+        display_name = g.talker_name
+        content = message.strip()
+        json_data = create_message_json(id, display_name, False, content)
+        answer_level = 100
+        await send_message_add_web_scraping(json_data, answer_level)
