@@ -117,7 +117,8 @@ async def main():
 
             is_response = has_keywords_response(message)
             answer_level = g.config["neoInnerApi"]["answerLevel"]
-            id = None
+
+            id = g.config["twitch"]["owner"]["name"]
             display_name = g.talker_name
             content = message.strip()
             json_data = create_message_json(id, display_name, False, content)
@@ -173,7 +174,7 @@ async def main():
             wait_seconds = (next_time - now).total_seconds()
             await asyncio.sleep(wait_seconds)
 
-            id = g.config["twitch"]["loginChannel"]
+            id = g.config["twitch"]["owner"]["name"]
             display_name = g.talker_name
             content = message.strip()
             json_data = create_message_json(id, display_name, False, content)
