@@ -3,3 +3,4 @@ twitchio==3.2.1
 beautifulsoup4==4.14.3
 websockets==16.0
 questionary==2.1.1
+asqlite @ git+https://github.com/Rapptz/asqlite.git
