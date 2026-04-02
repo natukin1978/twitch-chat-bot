@@ -207,7 +207,7 @@ async def main():
                 do_time_signal(time_signal_interval_minutes, time_signal_message)
             )
 
-    twitchio.utils.setup_logging(level=logging.INFO)
+    twitchio.utils.setup_logging(level=g.config["logLevel"])
     bot = None
     async with asqlite.create_pool("tokens.db") as tdb:
         tokens, subs = await setup_database(tdb)
